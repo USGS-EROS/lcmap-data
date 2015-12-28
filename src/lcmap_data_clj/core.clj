@@ -1,37 +1,81 @@
+;;;; LCMAP Data core namespace
+;;;;
+;;;; This namespace defines the command line behaviors provided by this
+;;;; library. It provides two functions invoked via Leiningen.
+;;;;
+;;;; 1. CQL Exection: used to load the schema and create initial tile specs.
+;;;; 2. Ingest ESPA archives.
 (ns lcmap-data-clj.core
   (:require [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.cql    :as cql]
             [clojure.tools.cli              :as cli]
+            [clojure.tools.logging          :as log]
             [clojure.java.io                :as io]
-            [taoensso.timbre                :as timbre]))
+            [com.stuartsierra.component     :as component]
+            [lcmap-data-clj.system          :as sys]
+            [lcmap-data-clj.ingest          :refer [ingest adopt]]
+            [lcmap-data-clj.util            :as util]))
 
-(timbre/refer-timbre)
-(timbre/set-level! :debug)
 
-(defn connect
-  "Establish a connection to database"
-  [& {:keys [hosts]
-      :or   {hosts (or (System/getenv "CASSANDRA_HOSTS") "192.168.33.20")}
-      :as   args}]
-  (let [host-list (clojure.string/split hosts #"[, ]")]
-    (debug (str "connecting: " hosts))
-    (cc/connect host-list)))
+(def db-option-specs [["-h" "--hosts HOST1,HOST2,HOST3"
+                       :default (or (System/getenv "LCMAP_CASSANDRA_HOSTS"))
+                       :parse-fn #(clojure.string/split % #"[, ]")]
+                      ["-k" "--spec-keyspace SPEC_KEYSPACE"
+                       :default "lcmap"]
+                      ["-t" "--spec-table SPEC_TABLE"
+                       :default "tile_specs"]
+                      ["-c" "--cql PATH_TO_CQL"
+                       :default "resources/schema.cql"]])
 
-(defn create-schema
+(defn execute-cql
   "Execute all statements in file specified by path"
-  [conn & {:keys [path]
-           :or   {path "resources/schema.cql"}}]
-  (let [schema-cql (slurp path)        
-        statements (map clojure.string/trim (clojure.string/split schema-cql #";"))]
+  [system path]
+  (let [conn (-> system :database :session)
+        cql-file (slurp path)
+        statements (map clojure.string/trim (clojure.string/split cql-file #";"))]
     (doseq [stmt (remove empty? statements)]
       (try
-        (trace "executing: " stmt)
         (cc/execute conn stmt)
-        (catch Exception e
-          (error (.getMessage e)))))))
+        (catch Exception ex
+          (log/error "error executing CQL" (ex-data ex)))))))
 
-(defn run-create-schema [& args]
-  (debug "preparing schema initialization")
-  (create-schema (connect))
-  (debug "finished schema initialization")
-  (System/exit 0))
+(defn cli-exec-cql
+  "Executes CQL (useful for creating schema and seeding data)"
+  [system opts]
+  (let [path (-> opts :options :cql)]
+    (execute-cql system path)))
+
+(defn cli-make-tiles
+  "Generate tiles from an ESPA archive"
+  [system opts]
+  (let [path (-> opts :arguments last)]
+    (util/with-temp [dir path]
+      (ingest dir system))))
+
+(defn cli-make-specs
+  "Generate specs from an ESPA archive"
+  [system opts]
+  (let [path (-> opts :arguments last)]
+    (util/with-temp [dir path]
+      (adopt dir system))))
+
+(defn cli-main
+  "Entry point for command line execution"
+  [& args]
+  ;; pull the spec-kespace, spec-table, and hosts
+  ;; but default to env and then project.clj if
+  ;; omitted
+  (let [db-opts (cli/parse-opts args db-option-specs)
+        system  (component/start (sys/build {:db (:options db-opts)}))
+        cmd     (-> db-opts :arguments first)]
+    (try
+      (cond (= cmd "exec") (cli-exec-cql system db-opts)
+            (= cmd "tile") (cli-make-tiles system db-opts)
+            (= cmd "spec") (cli-make-specs system db-opts)
+            :else (println "I have no idea what to do with" cmd))
+      (component/stop system)
+      (System/exit 0)
+      (catch Exception ex
+        (log/error ex)
+        (System/exit 1)))))
+
