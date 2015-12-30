@@ -10,32 +10,32 @@
 
 (deftest ^:integration band-seq-test
   (testing "Landsat 8 ESPA output"
-    (let [path "test/data/espa/L8"
+    (let [path (shared/L8 :dir)
           bands (band-seq path shared/test-system)]
-      (is (= 22 (count bands)))))
+      (is (= 20 (count bands)))))
   (testing "Landsat 7 ESPA output"
-    (let [path "test/data/espa/L7"
+    (let [path (shared/L7 :dir)
           bands (band-seq path shared/test-system)]
-      (is (= 27 (count bands)))))
+      (is (= 25 (count bands)))))
   (testing "Landsat 5 ESPA output"
-    (let [path "test/data/espa/L5"
+    (let [path (shared/L5 :dir)
           bands (band-seq path shared/test-system)]
-      (is (= 27 (count bands)))))
+      (is (= 25 (count bands)))))
   (testing "non-existent espa output"
-    (let [path "test/data/espa/L6"
+    (let [path "test/data/not-a-dir"
           bands (band-seq path shared/test-system)]
       (is (= 0 (count bands))))))
 
 (deftest ^:integration tile-seq-test
-  (let [path "test/data/espa/L8"
+  (let [path (shared/L8 :dir)
         band (first (band-seq path shared/test-system))
         tiles (tile-seq band shared/test-system)]
-    (is (= 420 (count tiles)))))
+    (is (= 16 (count tiles)))))
 
 (deftest ^:integration ingest-test
   (testing "Landsat 8 ESPA ingest"
-    (let [path "test/data/espa/L8"]
-      #_(ingest path shared/test-system))))
+    (let [path (shared/L8 :dir)]
+      (ingest path shared/test-system))))
 
 (deftest conforms?-test
   (testing "Aligns to tile spec's implicit raster grid")

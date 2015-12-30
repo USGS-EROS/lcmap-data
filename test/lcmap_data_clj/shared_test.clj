@@ -8,6 +8,14 @@
 
 (def test-system (component/start (system/build (lein-prj/read))))
 
-(def scene {:dir "test/data/espa/L8"
-            :xml "LC80460272013104LGN01.xml"
-            :img "LC80460272013104LGN01_toa_band1.tif"})
+(def L8 {:dir "test/data/ESPA/CONUS/ARD/LC80460272015302-SC20151230102540"
+         :xml "LC80460272015302LGN01.xml"
+         :img "LC80460272015302LGN01_toa_band1.tif"})
+
+(def L7 {:dir "test/data/ESPA/CONUS/ARD/LC80460272015302-SC20151230102540"
+         :xml "LC80460272015302LGN01.xml"
+         :img "LC80460272015302LGN01_toa_band1.tif"})
+
+(def L5 {:dir "test/data/ESPA/CONUS/ARD/LT50470272010327-SC20151230101810"
+         :xml "LT50470272010327-SC20151230101810/LT50470272010327EDC00.xml"
+         :img "LT50470272010327-SC20151230101810/LT50470272010327EDC00_sr_band1.tif"})
