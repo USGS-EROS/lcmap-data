@@ -3,8 +3,9 @@
 ;;;; This namespace defines the command line behaviors provided by this
 ;;;; library. It provides two functions invoked via Leiningen.
 ;;;;
-;;;; 1. CQL Exection: used to load the schema and create initial tile specs.
-;;;; 2. Ingest ESPA archives.
+;;;; 1. CQL Exection: used to load the schema
+;;;; 2. Save metadata as tile specification.
+;;;; 2. Save raster data as tiles.
 (ns lcmap-data-clj.core
   (:require [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.cql    :as cql]
