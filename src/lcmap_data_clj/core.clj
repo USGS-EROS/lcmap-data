@@ -48,23 +48,22 @@
 (defn cli-make-tiles
   "Generate tiles from an ESPA archive"
   [system opts]
-  (let [path (-> opts :arguments last)]
-    (util/with-temp [dir path]
-      (ingest dir system))))
+  (let [paths (-> opts :arguments rest)]
+    (doseq [path paths]
+      (util/with-temp [dir path]
+        (ingest dir system)))))
 
 (defn cli-make-specs
   "Generate specs from an ESPA archive"
   [system opts]
-  (let [path (-> opts :arguments last)]
-    (util/with-temp [dir path]
-      (adopt dir system))))
+  (let [paths (-> opts :arguments rest)]
+    (doseq [path paths]
+      (util/with-temp [dir path]
+        (adopt dir system)))))
 
 (defn cli-main
   "Entry point for command line execution"
   [& args]
-  ;; pull the spec-kespace, spec-table, and hosts
-  ;; but default to env and then project.clj if
-  ;; omitted
   (let [db-opts (cli/parse-opts args db-option-specs)
         system  (component/start (sys/build {:db (:options db-opts)}))
         cmd     (-> db-opts :arguments first)]
