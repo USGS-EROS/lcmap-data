@@ -78,8 +78,8 @@
       (unarchive tf# td#)
       (let [~binding td#]
         (do ~@body))
-      (catch java.lang.RuntimeException ex#
-        (ex-data ex#))
+      (catch java.io.IOException ex#
+        (log/error (ex-data ex#)))
       (finally
         (fs/delete tf#)
         (fs/delete-dir td#)))))

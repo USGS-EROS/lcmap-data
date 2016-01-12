@@ -86,13 +86,11 @@
   (let [{:keys [:n :s :e :w]} (get-bounds band)
         {:keys [:tile-x :tile-y :pixel-x :pixel-y :shift-x :shift-y]} spec
         ;; This is the interval of the grid in projection system units.
-        grid-x (* tile-x pixel-x)
-        grid-y (* tile-y pixel-y)
         ;; These are the "expanded" coordinates that frame the original dataset.
-        west  (+ shift-x (- w (mod w grid-x)))
-        north (+ shift-y (- n (mod n grid-y)))
-        east  (+ shift-x (- e (mod e (- grid-x))))
-        south (+ shift-y (- s (mod s (- grid-y))))
+        west  (+ shift-x (- w (mod w tile-x)))
+        north (+ shift-y (- n (mod n tile-y)))
+        east  (+ shift-x (- e (mod e (- tile-x))))
+        south (+ shift-y (- s (mod s (- tile-y))))
         ;; This is the new width and height in pixels.
         px    (int (Math/abs (/ (- west east) pixel-x)))
         py    (int (Math/abs (/ (- north south) pixel-y)))]
@@ -107,10 +105,12 @@
         data-type (gb/get-data-type (gd/get-raster-band data 1))
         result    (. driver Create "copy" (:x new-bounds) (:y new-bounds) layers data-type)
         layer     (gd/get-raster-band result 1)
+        fill      (:data-fill spec)
         affine [(:w new-bounds) (:pixel-x spec) 0 (:n new-bounds) 0 (:pixel-y spec)]]
+    (log/debug "Reproject using" affine "filled with" (:data-fill spec))
     (. result SetGeoTransform (double-array affine))
     (. result SetProjection (gd/get-projection data))
-    (. layer Fill (:data-fill spec))
+    (if fill (. layer Fill (:data-fill spec)))
     (gdal/ReprojectImage data result)
     result))
 
@@ -118,21 +118,33 @@
   "Build projection coordinate locating function for dataset"
   [dataset]
   (let [[px sx _ py _ sy] (gd/get-geo-transform dataset)]
+    (log/debug "Build a projection system point finder with" px sx py sy)
     (fn [{x :x y :y :as tile}]
+      (log/debug "locate raster grid x/y" x y "using" px sx py sy)
       (assoc tile
              :tx (long (+ px (* x sx)))
              :ty (long (+ py (* y sy)))))))
+
+(defn get-step
+  ""
+  [spec]
+  (let [step-x (/ (spec :tile-x) (spec :pixel-x))
+        step-y (/ (spec :tile-y) (spec :pixel-y))]
+    {:step-x step-x :step-y step-y}))
 
 (defn tile-seq
   "Builds a seq of tile maps. Reprojects band's gdal-data to ensure
   tiles align to the tile spec's grid."
   [band system]
-  (log/debug "Building tile seq from band map")
-  (let [{{xstep :tile-x ystep :tile-y} :tile-spec} band
+  (log/debug "Building tile seq from band map" (-> band :tile-spec :ubid))
+  ;; tile-x and tile-y are in terms of projection system units
+  ;; and are used along with pixel-x and pixel-y to calculate
+  ;; the xstep and ystep.
+  (let [{step-x :step-x step-y :step-y} (get-step (:tile-spec band))
         framed (reproject band)
         locate (proj-point-finder framed)
         raster (gd/get-raster-band framed 1)]
-    (for [tile (gb/raster-seq raster :xstep xstep :ystep ystep)]
+    (for [tile (gb/raster-seq raster :xstep (int step-x) :ystep (int step-y))]
       (-> tile locate (assoc :band band)))))
 
 (defn tile->buffer
@@ -152,8 +164,8 @@
   [band]
   (let [data-type (-> band :tile-spec :data-type)
         data-fill (-> band :tile-spec :data-fill)
-        data-size (* (-> band :tile-spec :tile-x)
-                     (-> band :tile-spec :tile-y))]
+        data-size (* (-> band :tile-spec get-step :step-x)
+                     (-> band :tile-spec get-step :step-y))]
     (condp = data-type
       "INT16" (let [buffer (java.nio.ShortBuffer/allocate data-size)
                     backer (. buffer array)]
@@ -165,12 +177,18 @@
                 buffer))))
 
 (defn has-data?
-  "Determin if tile's data buffer is more than just fill data."
+  "Determine if tile's data buffer is more than just fill data."
   [tile]
   (log/debug "Checking tile for all fill-data")
-  (let [buffer (tile->buffer tile)
-        filler (band->fill-buffer (tile :band))]
-    (not= 0 (. buffer compareTo filler))))
+  (if (-> tile :tile-spec :data-fill)
+    (let [buffer (tile->buffer tile)
+          filler (band->fill-buffer (tile :band))]
+      (not= 0 (. buffer compareTo filler)))
+    ;; We assue that tile specs that lack fill data always
+    ;; have some relevant value. This might be a bad idea
+    ;; because some bands may have tiles for an acquisition
+    ;; moment whereas others will not.
+    true))
 
 (defn save
   "Insert data into database"
@@ -195,15 +213,16 @@
 
 (defn save-spec
   [band system]
-  (let [spec (select-keys band [:keyspace-name :table-name :satellite :instrument :ubid :projection
+  (let [spec (select-keys band [:keyspace-name :table-name
+                                :projection
                                 :tile-x :tile-y :pixel-x :pixel-y :shift-x :shift-y
+                                :satellite :instrument :ubid
                                 :band-name :band-short-name :band-long-name :band-product :band-category
                                 :data-fill :data-range :data-scale :data-type :data-units :data-mask])]
     (log/info "Saving tile spec" (:ubid spec))
     (try
       (tile-spec/save spec system)
       (catch Exception ex
-        (println ex)
         (log/error ex)))))
 
 (defn adopt
@@ -211,8 +230,8 @@
   [path system]
   (let [base-spec {:keyspace-name "lcmap"
                    :table-name    "conus"
-                   :tile-x        256
-                   :tile-y        256}]
+                   :tile-x        (* 256 30)
+                   :tile-y        (* 256 -30)}]
     (log/info "Adopting all bands as a tile spec" path)
     (doseq [band (band-seq path system)
             :let [band-ubid {:ubid (get-ubid band)}
