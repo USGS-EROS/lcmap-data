@@ -2,9 +2,9 @@
   (:require [lcmap-data-clj.util :as util]
             [lcmap-data-clj.espa :as espa]
             [lcmap-data-clj.tile-spec :as tile-spec]
-            [clj-gdal.core :as gc]
-            [clj-gdal.dataset :as gd]
-            [clj-gdal.band :as gb]
+            [gdal.core :as gc]
+            [gdal.dataset :as gd]
+            [gdal.band :as gb]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [clojurewerkz.cassaforte.cql :as cql])
@@ -74,8 +74,8 @@
   "Find bounding box (in projection coordinate system) of a GDAL dataset"
   [{dataset :gdal-data :as band}]
   (let [[ux sx _ uy _ sy] (gd/get-geo-transform dataset)
-        px (gd/get-raster-x-size dataset)
-        py (gd/get-raster-y-size dataset)
+        px (gd/get-x-size dataset)
+        py (gd/get-y-size dataset)
         lx (+ ux (* sx px))
         ly (+ uy (* sy py))]
     {:w ux :n uy :e lx :s ly :x px :y py}))
@@ -101,15 +101,15 @@
   [{spec :tile-spec data :gdal-data :as band}]
   (let [new-bounds (get-frame band)
         driver    (gc/get-driver-by-name "MEM")
-        layers    (gd/get-raster-count data)
-        data-type (gb/get-data-type (gd/get-raster-band data 1))
+        layers    (gd/get-band-count data)
+        data-type (gb/get-data-type (gd/get-band data 1))
         result    (. driver Create "copy" (:x new-bounds) (:y new-bounds) layers data-type)
-        layer     (gd/get-raster-band result 1)
+        layer     (gd/get-band result 1)
         fill      (:data-fill spec)
         affine [(:w new-bounds) (:pixel-x spec) 0 (:n new-bounds) 0 (:pixel-y spec)]]
     (log/debug "Reproject using" affine "filled with" (:data-fill spec))
     (. result SetGeoTransform (double-array affine))
-    (. result SetProjection (gd/get-projection data))
+    (. result SetProjection (gd/get-projection-str data))
     (if fill (. layer Fill (:data-fill spec)))
     (gdal/ReprojectImage data result)
     result))
@@ -143,7 +143,7 @@
   (let [{step-x :step-x step-y :step-y} (get-step (:tile-spec band))
         framed (reproject band)
         locate (proj-point-finder framed)
-        raster (gd/get-raster-band framed 1)]
+        raster (gd/get-band framed 1)]
     (for [tile (gb/raster-seq raster :xstep (int step-x) :ystep (int step-y))]
       (-> tile locate (assoc :band band)))))
 

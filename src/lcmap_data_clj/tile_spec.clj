@@ -1,5 +1,5 @@
 (ns lcmap-data-clj.tile-spec
-  (:require [clj-gdal.dataset :as gd]
+  (:require [gdal.dataset :as gd]
             [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :as cq]

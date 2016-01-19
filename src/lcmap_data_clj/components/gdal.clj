@@ -1,6 +1,6 @@
 (ns lcmap-data-clj.components.gdal
   (:require [com.stuartsierra.component :as component]
-            [clj-gdal.core :as gc]
+            [gdal.core :as gc]
             [clojure.tools.logging :as log]))
 (defrecord GDAL []
 

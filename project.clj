@@ -14,7 +14,7 @@
                  [camel-snake-kebab "0.3.2"]
                  [me.raynes/fs "1.4.6"]
                  [enlive "1.1.6"]
-                 [clj-gdal "0.0.1-SNAPSHOT"]
+                 [clj-gdal "0.2.0"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]]
   :aliases {"db" ["run" "-m" "lcmap-data-clj.core/cli-main"]}

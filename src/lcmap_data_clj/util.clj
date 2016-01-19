@@ -9,8 +9,8 @@
 (ns lcmap-data-clj.util
   (:require [me.raynes.fs :as fs]
             [clojure.java.io :as io]
-            [clj-gdal.core :as core]
-            [clj-gdal.dataset :as gd])
+            [gdal.core :as core]
+            [gdal.dataset :as gd])
   (:import [org.gdal.gdal gdal]
            [org.gdal.osr SpatialReference]
            [org.apache.commons.compress.archivers
@@ -108,14 +108,14 @@
 (defn get-proj-from-image
   "Build a SpatialReference for a GDAL dataset"
   [image]
-  (let [proj (new SpatialReference (gd/get-projection image))]
+  (let [proj (new SpatialReference (gd/get-projection-str image))]
     proj))
 
 (defn get-spec-from-image
   "Generate a tile-spec like map for an image."
   [image]
   (let [[ux sx _ uy _ sy] (gd/get-geo-transform image)
-        projection (gd/get-projection image)]
+        projection (gd/get-projection-str image)]
     {:upper-x ux
      :upper-y uy
      :pixel-x sx

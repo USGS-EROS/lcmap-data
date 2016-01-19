@@ -1,6 +1,7 @@
 (ns lcmap-data-clj.components.database
   (:require [com.stuartsierra.component :as component]
             [clojurewerkz.cassaforte.client :as client]
+            [clojurewerkz.cassaforte.policies :as policies]
             [clojurewerkz.cassaforte.cql :as cql]
             [clojure.tools.logging :as log]))
 
@@ -13,6 +14,8 @@
           session  (client/connect hosts)]
       ;; It's possible that the keyspace does not exist.
       (try
+        (policies/constant-reconnection-policy 250 #_ms)
+        (policies/retry-policy :default)
         (cql/use-keyspace session keyspace)
         (catch Exception ex
           (log/error "Could not use keyspace" (ex-data ex))
