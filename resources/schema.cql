@@ -43,3 +43,4 @@ CREATE INDEX satellite_ix ON lcmap.tile_specs (satellite);
 CREATE INDEX instrument_ix ON lcmap.tile_specs (instrument);
 CREATE INDEX band_product_ix ON lcmap.tile_specs (band_product);
 CREATE INDEX band_name_ix ON lcmap.tile_specs (band_name);
+CREATE INDEX ubid_ix ON lcmap.tile_specs (ubid);
