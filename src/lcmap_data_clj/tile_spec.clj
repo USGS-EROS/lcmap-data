@@ -29,7 +29,7 @@
                   (if-not (rule (spec field))
                     {field :invalid})))))
 
-(defn find
+(defn find-spec
   "Retrieve a tile spec for given band"
   [band system]
   (let [session  (-> system :database :session)

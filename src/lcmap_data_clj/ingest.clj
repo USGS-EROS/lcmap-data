@@ -28,7 +28,7 @@
   "Get tile-spec implied by band's mission, instrument, product, and name"
   [band system]
   (let [params (select-keys band [:mission :instrument :product :band-name])
-        specs (tile-spec/find params system)]
+        specs (tile-spec/find-spec params system)]
     (assoc band :tile-spec (first specs))))
 
 (defn band-seq
