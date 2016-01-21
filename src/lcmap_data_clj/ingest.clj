@@ -218,7 +218,7 @@
                                 :tile-x :tile-y :pixel-x :pixel-y :shift-x :shift-y
                                 :satellite :instrument :ubid
                                 :band-name :band-short-name :band-long-name :band-product :band-category
-                                :data-fill :data-range :data-scale :data-type :data-units :data-mask])]
+                                :data-fill :data-range :data-scale :data-type :data-units :data-mask :data-shape])]
     (log/info "Saving tile spec" (:ubid spec))
     (try
       (tile-spec/save spec system)
@@ -231,7 +231,8 @@
   (let [base-spec {:keyspace-name "lcmap"
                    :table-name    "conus"
                    :tile-x        (* 256 30)
-                   :tile-y        (* 256 -30)}]
+                   :tile-y        (* 256 -30)
+                   :data-shape    [256 256]}]
     (log/info "Adopting all bands as a tile spec" path)
     (doseq [band (band-seq path system)
             :let [band-ubid {:ubid (get-ubid band)}
