@@ -15,6 +15,17 @@
                :units   (attr sazip :units)}]
     props))
 
+(defn lpgs-path
+  "Retrieve path to LPGS metadata file"
+  [global]
+  (let [path (xml1-> global :lpgs_metadata_file text)]
+    path))
+
+(defn source-scene
+  "Extract implicit scene ID from relative LPGS metadata file path"
+  [lpgs-path]
+  (re-find #"[A-Z0-9]+" lpgs-path))
+
 (defn global->map
   "Convert a global_metadata element to a map"
   [root]
@@ -23,6 +34,7 @@
      :instrument   (xml1-> gmzip :instrument text)
      :provider     (xml1-> gmzip :data_provider text)
      :acquired     (xml1-> gmzip :acquisition_date text)
+     :source       (-> gmzip lpgs-path source-scene)
      :solar-angles (solar-angles->map gmzip)}))
 
 (defn data-range->list
