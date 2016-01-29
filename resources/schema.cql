@@ -43,3 +43,33 @@ CREATE INDEX satellite_ix ON lcmap.tile_specs (satellite);
 CREATE INDEX instrument_ix ON lcmap.tile_specs (instrument);
 CREATE INDEX band_product_ix ON lcmap.tile_specs (band_product);
 CREATE INDEX band_name_ix ON lcmap.tile_specs (band_name);
+
+-- Job Management (Science Model Execution Tracking)
+CREATE TABLE lcmap.job (
+    job_id text PRIMARY KEY,
+    status int,
+    science_model_name text,
+    execution_parameters text,
+    result_keyspace text,
+    result_table text,
+    result_id text,
+
+) WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
+  AND COMMENT = 'Science model job results tracking and linking.';
+
+-- Results table for sample model
+CREATE TABLE lcmap.samplemodel (
+    result_id text PRIMARY KEY,
+    result text
+
+) WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
+  AND COMMENT = 'Sample model results table.';
+
+-- Results table for CCDC model
+CREATE TABLE lcmap.ccdcmodel (
+    result_id text PRIMARY KEY,
+    result text
+
+) WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
+  AND COMMENT = 'CCDC model results table.';
+
