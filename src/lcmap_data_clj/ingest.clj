@@ -28,7 +28,7 @@
   "Get tile-spec implied by band's mission, instrument, product, and name"
   [band system]
   (let [params (select-keys band [:mission :instrument :product :band-name])
-        specs (tile-spec/find params system)]
+        specs (tile-spec/find-spec params system)]
     (assoc band :tile-spec (first specs))))
 
 (defn band-seq
@@ -193,11 +193,11 @@
 (defn save
   "Insert data into database"
   [tile system]
-  (let [{tx :tx ty :ty data :data {acquired :acquired {ubid :ubid} :tile-spec} :band} tile
+  (let [{tx :tx ty :ty data :data {acquired :acquired source :source {ubid :ubid} :tile-spec} :band} tile
         conn (-> system :database :session)
         table (-> tile :band :tile-spec :table-name)]
-    (cql/insert conn table {:x tx :y ty :ubid ubid :acquired acquired :data data })
-    (log/info "Saving " tx ty ubid acquired)))
+    (log/info "Saving" tx ty ubid acquired source)
+    (cql/insert conn table {:x tx :y ty :ubid ubid :acquired acquired :source source :data data })))
 
 (defn ingest
   "Save raster data at path as tiles."
@@ -218,12 +218,13 @@
                                 :tile-x :tile-y :pixel-x :pixel-y :shift-x :shift-y
                                 :satellite :instrument :ubid
                                 :band-name :band-short-name :band-long-name :band-product :band-category
-                                :data-fill :data-range :data-scale :data-type :data-units :data-mask])]
+                                :data-fill :data-range :data-scale :data-type :data-units :data-mask :data-shape])]
     (log/info "Saving tile spec" (:ubid spec))
+    (log/debug spec)
     (try
       (tile-spec/save spec system)
       (catch Exception ex
-        (log/error ex)))))
+        (log/error (ex-data ex))))))
 
 (defn adopt
   "Save ESPA metadata as tile specs"
@@ -231,7 +232,8 @@
   (let [base-spec {:keyspace-name "lcmap"
                    :table-name    "conus"
                    :tile-x        (* 256 30)
-                   :tile-y        (* 256 -30)}]
+                   :tile-y        (* 256 -30)
+                   :data-shape    [256 256]}]
     (log/info "Adopting all bands as a tile spec" path)
     (doseq [band (band-seq path system)
             :let [band-ubid {:ubid (get-ubid band)}

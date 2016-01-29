@@ -1,5 +1,6 @@
 CREATE KEYSPACE IF NOT EXISTS lcmap WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'DC1' : 1};
 
+-- Tiles for CONUS
 CREATE TABLE IF NOT EXISTS lcmap.conus (
     x int,
     y int,
@@ -10,6 +11,7 @@ CREATE TABLE IF NOT EXISTS lcmap.conus (
     PRIMARY KEY ((x, y, ubid), acquired)
 );
 
+-- Tile specifications/metadata
 CREATE TABLE IF NOT EXISTS lcmap.tile_specs (
     keyspace_name text,
     table_name text,
@@ -43,6 +45,7 @@ CREATE INDEX satellite_ix ON lcmap.tile_specs (satellite);
 CREATE INDEX instrument_ix ON lcmap.tile_specs (instrument);
 CREATE INDEX band_product_ix ON lcmap.tile_specs (band_product);
 CREATE INDEX band_name_ix ON lcmap.tile_specs (band_name);
+CREATE INDEX ubid_ix ON lcmap.tile_specs (ubid);
 
 -- Job Management (Science Model Execution Tracking)
 CREATE TABLE lcmap.job (
