@@ -1,4 +1,4 @@
-(defproject lcmap-data-clj "0.1.0-SNAPSHOT"
+(defproject  gov.usgs.eros/lcmap-data-clj "0.1.0-SNAPSHOT"
   :description "LCMAP data layer management tools"
   :url "http://github.com/USGS-EROS/lcmap-data-clj"
   :license {:name "TBD"
@@ -29,7 +29,7 @@
                           :protocol-version 3
                           :spec-keyspace "lcmap"
                           :spec-table "tile_specs"}
-                     :log {:level :debug}
+                     :log {:level :info}
                      :dependencies [[org.clojure/tools.namespace "0.2.11"
                                      slamhound "1.5.5"]]
                      :aliases {"slamhound" ["run" "-m" "slam.hound"]}
