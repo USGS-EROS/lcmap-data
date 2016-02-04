@@ -17,14 +17,10 @@
             [lcmap-data-clj.ingest          :refer [ingest adopt]]
             [lcmap-data-clj.util            :as util]))
 
-
 (def db-option-specs [["-h" "--hosts HOST1,HOST2,HOST3"
-                       :default (or (System/getenv "LCMAP_CASSANDRA_HOSTS"))
                        :parse-fn #(clojure.string/split % #"[, ]")]
-                      ["-k" "--spec-keyspace SPEC_KEYSPACE"
-                       :default "lcmap"]
-                      ["-t" "--spec-table SPEC_TABLE"
-                       :default "tile_specs"]
+                      ["-k" "--spec-keyspace SPEC_KEYSPACE"]
+                      ["-t" "--spec-table SPEC_TABLE"]
                       ["-c" "--cql PATH_TO_CQL"
                        :default "resources/schema.cql"]])
 
@@ -35,8 +31,8 @@
         cql-file (slurp path)
         statements (map clojure.string/trim (clojure.string/split cql-file #";"))]
     (doseq [stmt (remove empty? statements)]
-      (try
-        (cc/execute conn stmt)
+      (cc/execute conn stmt)
+      #_(try       
         (catch Exception ex
           (log/error "error executing CQL" (ex-data ex)))))))
 
@@ -65,13 +61,16 @@
 (defn cli-main
   "Entry point for command line execution"
   [& args]
-  (let [db-opts (cli/parse-opts args db-option-specs)
-        system  (component/start (sys/build {:db (:options db-opts)}))
-        cmd     (-> db-opts :arguments first)]
+  (let [cli-opts (cli/parse-opts args db-option-specs)
+        env-opts (util/get-config)
+        db-opts  (select-keys [:hosts :spec-keyspace :spec-table] cli-opts)
+        combined (util/deep-merge env-opts {:db db-opts})
+        system   (component/start (sys/build combined))
+        cmd      (-> cli-opts :arguments first)]
     (try
-      (cond (= cmd "exec") (cli-exec-cql system db-opts)
-            (= cmd "tile") (cli-make-tiles system db-opts)
-            (= cmd "spec") (cli-make-specs system db-opts)
+      (cond (= cmd "exec") (cli-exec-cql system cli-opts)
+            (= cmd "tile") (cli-make-tiles system cli-opts)
+            (= cmd "spec") (cli-make-specs system cli-opts)
             :else (println "I have no idea what to do with" cmd))
       (component/stop system)
       (System/exit 0)

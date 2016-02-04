@@ -9,17 +9,17 @@
   component/Lifecycle
   (start [component]
     (log/debug "start component database")
-    (let [hosts    (-> component :config :db :hosts)
-          keyspace (-> component :config :db :spec-keyspace)
-          session  (client/connect hosts)]
-      ;; It's possible that the keyspace does not exist.
+    (let [db-cfg   (-> component :config :db)
+          hosts    (:hosts db-cfg)
+          opts     (dissoc db-cfg :hosts)
+          session  (client/connect hosts opts)
+          keyspace (:spec-keyspace db-cfg)]
       (try
+        (cql/use-keyspace session keyspace)
         (policies/constant-reconnection-policy 250 #_ms)
         (policies/retry-policy :default)
-        (cql/use-keyspace session keyspace)
         (catch Exception ex
-          (log/error "Could not use keyspace" (ex-data ex))
-          component))
+          (log/warn "Could not use keyspace")))
       (assoc component :session session)))
   (stop [component]
     (log/debug "stop component database")

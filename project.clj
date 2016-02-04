@@ -11,6 +11,8 @@
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
                  [clojurewerkz/cassaforte "2.0.0"]
+                 [net.jpountz.lz4/lz4 "1.3.0"]
+                 [org.xerial.snappy/snappy-java "1.1.2"]
                  [camel-snake-kebab "0.3.2"]
                  [me.raynes/fs "1.4.6"]
                  [enlive "1.1.6"]
@@ -23,14 +25,18 @@
                    :slow    :integration
                    :fast    (complement :integration)
                    :all     (constantly true)}
-  :profiles {:dev   {:active-profile "dev"
-                     :db {:hosts ["192.168.33.20"]
-                          :port 9042
-                          :protocol-version 3
-                          :spec-keyspace "lcmap"
-                          :spec-table "tile_specs"}
-                     :log {:level :info}
-                     :dependencies [[org.clojure/tools.namespace "0.2.11"
-                                     slamhound "1.5.5"]]
-                     :aliases {"slamhound" ["run" "-m" "slam.hound"]}
-                     :plugins [[lein-kibit "0.1.2"]]}})
+  :profiles {:dev
+             {:env
+              {:active-profile "dev"
+               :db {:hosts []
+                    :port 9042
+                    :protocol-version 3
+                    ;; :credentials {:username "user"
+                    ;;               :password "pass"}
+                    :spec-keyspace "lcmap"
+                    :spec-table "tile_specs"}}
+               :log {:level :info}
+               :dependencies [[org.clojure/tools.namespace "0.2.11"
+                               slamhound "1.5.5"]]
+               :aliases {"slamhound" ["run" "-m" "slam.hound"]}
+               :plugins [[lein-kibit "0.1.2"]]}})

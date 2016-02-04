@@ -33,10 +33,10 @@
   "Retrieve a tile spec for given band"
   [band system]
   (let [session  (-> system :database :session)
-        keyspace (-> system :config :db :spec-keyspace)
-        table    (-> system :config :db :spec-table)
+        spec-keyspace (-> system :config :db :spec-keyspace)
+        spec-table    (-> system :config :db :spec-table)
         params   (cq/where (transform-keys ->snake_case band))
-        results  (cql/select session table params (cq/allow-filtering))]
+        results  (cql/select session spec-table params (cq/allow-filtering))]
     (log/debug "Find bands" band)
     (map #(transform-keys (util/ifa keyword? ->kebab-case) %) results)))
 
@@ -44,9 +44,9 @@
   "Insert a tile-spec into the tile_specs table"
   [tile-spec system]
   (let [session (-> system :database :session)
-        maybe-snake (util/ifa keyword? ->snake_case)
-        spec-table (-> system :config :db :spec-table)
         spec-keyspace (-> system :config :db :spec-keyspace)
+        spec-table (-> system :config :db :spec-table)
+        maybe-snake (util/ifa keyword? ->snake_case)
         spec-snaked (transform-keys maybe-snake tile-spec)]
     (log/debug "Save tile-spec" spec-snaked)
-    (cql/insert session "tile_specs" spec-snaked)))
+    (cql/insert session spec-table spec-snaked)))

@@ -26,7 +26,7 @@
 (defn init
   "Prepare the system without starting it"
   []
-  (alter-var-root #'the-system #(when-not % (system/build (lein-prj/read)))))
+  (alter-var-root #'the-system #(when-not % (system/build (util/get-config)))))
 
 (defn start
   "Start the system (if it exists)"
