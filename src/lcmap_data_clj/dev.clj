@@ -17,6 +17,7 @@
             [clojurewerkz.cassaforte.utils :as cu]
             [clojurewerkz.cassaforte.cql :as cql]
             [clojure.tools.logging :as log]
+            [twig.core :as logger]
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]
             [com.stuartsierra.component :as component]
             [leiningen.core.project :as lein-prj]))

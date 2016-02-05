@@ -6,13 +6,13 @@
 
   component/Lifecycle
   (start [component]
-    (log/debug "start gdal component")
+    (log/info "Starting GDAL component ...")
     (gc/init)
     component)
   (stop [component]
-    (log/debug "stop gdal component")
+    (log/info "Stopping GDAL component ...")
     component))
 
 (defn new-gdal []
-  (log/debug "build component GDAL")
+  (log/info "Building GDAL component ...")
   (->GDAL))

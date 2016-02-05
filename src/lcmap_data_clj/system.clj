@@ -3,14 +3,18 @@
             [clojure.tools.logging :as log]
             [lcmap-data-clj.components.config :as config]
             [lcmap-data-clj.components.gdal :as gdal]
-            [lcmap-data-clj.components.database :as database]))
+            [lcmap-data-clj.components.database :as database]
+            [lcmap-data-clj.components.logger :as logger]))
 
 (defn build [opts]
-  (log/debug "building system components map")
+  (log/info "Building system components map")
   (component/system-map
     :config   (component/using
                 (config/new-configuration opts)
                 [])
+    :logger   (component/using
+               (logger/new-logger)
+               [:config])
     :gdal     (component/using
                 (gdal/new-gdal)
                 [:config])

@@ -8,7 +8,7 @@
 (defrecord Database []
   component/Lifecycle
   (start [component]
-    (log/debug "start component database")
+    (log/info "Starting DB component ...")
     (let [db-cfg   (-> component :config :db)
           hosts    (:hosts db-cfg)
           opts     (dissoc db-cfg :hosts)
@@ -22,7 +22,7 @@
           (log/warn "Could not use keyspace")))
       (assoc component :session session)))
   (stop [component]
-    (log/debug "stop component database")
+    (log/info "Stopping DB component ...")
     (try
       (let [session (-> component :session)]
         (client/disconnect session))
@@ -31,5 +31,5 @@
     (dissoc component :session)))
 
 (defn new-database []
-  (log/debug "build component database")
+  (log/info "Building DB component ...")
   (->Database))
