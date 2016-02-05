@@ -31,8 +31,8 @@
         cql-file (slurp path)
         statements (map clojure.string/trim (clojure.string/split cql-file #";"))]
     (doseq [stmt (remove empty? statements)]
-      (cc/execute conn stmt)
-      #_(try       
+      (try
+        (cc/execute conn stmt)
         (catch Exception ex
           (log/error "error executing CQL" (ex-data ex)))))))
 
