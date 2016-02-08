@@ -9,6 +9,7 @@
 (ns lcmap-data-clj.core
   (:require [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.cql    :as cql]
+            [clojure.pprint                 :as pprint]
             [clojure.tools.cli              :as cli]
             [clojure.tools.logging          :as log]
             [clojure.java.io                :as io]
@@ -17,12 +18,20 @@
             [lcmap-data-clj.ingest          :refer [ingest adopt]]
             [lcmap-data-clj.util            :as util]))
 
-(def db-option-specs [["-h" "--hosts HOST1,HOST2,HOST3"
-                       :parse-fn #(clojure.string/split % #"[, ]")]
-                      ["-k" "--spec-keyspace SPEC_KEYSPACE"]
-                      ["-t" "--spec-table SPEC_TABLE"]
-                      ["-c" "--cql PATH_TO_CQL"
-                       :default "resources/schema.cql"]])
+(def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3"
+                        :parse-fn #(clojure.string/split % #"[, ]")
+                        :default (System/getenv "LCMAP_HOSTS")]
+                       ["-u" "--username USERNAME"
+                        :default (System/getenv "LCMAP_USER")]
+                       ["-p" "--password PASSWORD"
+                        :default (System/getenv "LCMAP_PASS")]
+                       ["-k" "--spec-keyspace SPEC_KEYSPACE"
+                        :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
+                       ["-t" "--spec-table SPEC_TABLE"
+                        :default (System/getenv "LCMAP_SPEC_TABLE")]
+                       ["-c" "--cql PATH_TO_CQL"
+                        :default "resources/schema.cql"]])
+
 
 (defn execute-cql
   "Execute all statements in file specified by path"
@@ -58,19 +67,25 @@
       (util/with-temp [dir path]
         (adopt dir system)))))
 
+(defn cli-info
+  [system config-map]
+  (pprint/pprint config-map))
+
 (defn cli-main
   "Entry point for command line execution"
   [& args]
-  (let [cli-opts (cli/parse-opts args db-option-specs)
+  (let [cli-args (cli/parse-opts args cli-option-specs)
+        db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
+                       :credentials (select-keys cli-args [:username :password])}}
         env-opts (util/get-config)
-        db-opts  (select-keys [:hosts :spec-keyspace :spec-table] cli-opts)
-        combined (util/deep-merge env-opts {:db db-opts})
+        combined (util/deep-merge env-opts db-opts)
         system   (component/start (sys/build combined))
-        cmd      (-> cli-opts :arguments first)]
+        cmd      (-> cli-args :arguments first)]
     (try
-      (cond (= cmd "exec") (cli-exec-cql system cli-opts)
-            (= cmd "tile") (cli-make-tiles system cli-opts)
-            (= cmd "spec") (cli-make-specs system cli-opts)
+      (cond (= cmd "exec") (cli-exec-cql system cli-args)
+            (= cmd "tile") (cli-make-tiles system cli-args)
+            (= cmd "spec") (cli-make-specs system cli-args)
+            (= cmd "info") (cli-info system combined)
             :else (println "I have no idea what to do with" cmd))
       (component/stop system)
       (System/exit 0)
