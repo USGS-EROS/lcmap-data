@@ -18,18 +18,18 @@
             [lcmap-data-clj.ingest          :refer [ingest adopt]]
             [lcmap-data-clj.util            :as util]))
 
-(def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3"
+(def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
                         :parse-fn #(clojure.string/split % #"[, ]")
-                        :default #(clojure.string/split % (System/getenv "LCMAP_HOSTS"))]
-                       ["-u" "--username USERNAME"
+                        :default (clojure.string/split (or (System/getenv "LCMAP_HOSTS") "127.0.0.1") #"[, ]")]
+                       ["-u" "--username USERNAME" "Cassandra user ID"
                         :default (System/getenv "LCMAP_USER")]
-                       ["-p" "--password PASSWORD"
+                       ["-p" "--password PASSWORD" "Cassandra password"
                         :default (System/getenv "LCMAP_PASS")]
-                       ["-k" "--spec-keyspace SPEC_KEYSPACE"
+                       ["-k" "--spec-keyspace SPEC_KEYSPACE" ""
                         :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
-                       ["-t" "--spec-table SPEC_TABLE"
+                       ["-t" "--spec-table SPEC_TABLE" ""
                         :default (System/getenv "LCMAP_SPEC_TABLE")]
-                       ["-c" "--cql PATH_TO_CQL"
+                       ["-c" "--cql PATH_TO_CQL" ""
                         :default "resources/schema.cql"]])
 
 
