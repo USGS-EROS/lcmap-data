@@ -28,11 +28,11 @@
   :profiles {:dev
              {:env
               {:active-profile "dev"
+               ;; Use environment variables for DB configuration:
+               ;; LCMAP_HOSTS, LCMAP_USER, LCMAP_PASS
                :db {:hosts []
                     :port 9042
                     :protocol-version 3
-                    ;; :credentials {:username "user"
-                    ;;               :password "pass"}
                     :spec-keyspace "lcmap"
                     :spec-table "tile_specs"}
                :logger [lcmap-data-clj :debug
