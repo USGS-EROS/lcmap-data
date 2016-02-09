@@ -35,7 +35,7 @@
                     :protocol-version 3
                     :spec-keyspace "lcmap"
                     :spec-table "tile_specs"}
-               :logger [lcmap-data-clj :error
+               :logger [lcmap-data-clj :info
                         com.datastax :error
                         co.paralleluniverse :error
                         org.gdal :error]

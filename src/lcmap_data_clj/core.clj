@@ -88,6 +88,7 @@
               :else (println "I have no idea what to do with" cmd))
         (component/stop system)
         (System/exit 0))
-        (catch Exception ex
-          (log/error ex)
-          (System/exit 1))))
+      (catch Exception ex
+        (log/error "Unhandled exception")
+        (log/error (ex-data ex))
+        (System/exit 1))))

@@ -202,9 +202,10 @@
 (defn ingest
   "Save raster data at path as tiles."
   [path system]
-  (log/info "Ingesting" path)
+  (log/info "Ingesting archive" (.getAbsolutePath path))
   (doseq [band (filter defined? (band-seq path system))
           :when (conforms? band)]
+    (log/info "Ingesting scene" (get-in band [:tile-spec :ubid]))
     (doseq [tile (tile-seq band system)
             :when (has-data? tile)]
       (save tile system))))
@@ -224,7 +225,7 @@
     (try
       (tile-spec/save spec system)
       (catch Exception ex
-        (log/error (ex-data ex))))))
+        (log/error ex)))))
 
 (defn adopt
   "Save ESPA metadata as tile specs"
