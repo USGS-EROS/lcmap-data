@@ -20,7 +20,7 @@
 
 (def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
                         :parse-fn #(clojure.string/split % #"[, ]")
-                        :default (clojure.string/split (or (System/getenv "LCMAP_HOSTS") "127.0.0.1") #"[, ]")]
+                        :default (clojure.string/split (System/getenv "LCMAP_HOSTS") #"[, ]")]
                        ["-u" "--username USERNAME" "Cassandra user ID"
                         :default (System/getenv "LCMAP_USER")]
                        ["-p" "--password PASSWORD" "Cassandra password"
@@ -31,7 +31,6 @@
                         :default (System/getenv "LCMAP_SPEC_TABLE")]
                        ["-c" "--cql PATH_TO_CQL" ""
                         :default "resources/schema.cql"]])
-
 
 (defn execute-cql
   "Execute all statements in file specified by path"
@@ -74,22 +73,21 @@
 (defn cli-main
   "Entry point for command line execution"
   [& args]
-  (let [cli-args (cli/parse-opts args cli-option-specs)
-        db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
-                       :credentials (select-keys (cli-args :options) [:username :password])}}
-        env-opts (util/get-config)
-        combined (util/deep-merge env-opts db-opts)
-        system   (component/start (sys/build combined))
-        cmd      (-> cli-args :arguments first)]
     (try
-      (cond (= cmd "exec") (cli-exec-cql system cli-args)
-            (= cmd "tile") (cli-make-tiles system cli-args)
-            (= cmd "spec") (cli-make-specs system cli-args)
-            (= cmd "info") (cli-info system combined)
-            :else (println "I have no idea what to do with" cmd))
-      (component/stop system)
-      (System/exit 0)
-      (catch Exception ex
-        (log/error ex)
-        (System/exit 1)))))
-
+      (let [cli-args (cli/parse-opts args cli-option-specs)
+            db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
+                           :credentials (select-keys (cli-args :options) [:username :password])}}
+            env-opts (util/get-config)
+            combined (util/deep-merge env-opts db-opts)
+            system   (component/start (sys/build combined))
+            cmd      (-> cli-args :arguments first)]
+        (cond (= cmd "exec") (cli-exec-cql system cli-args)
+              (= cmd "tile") (cli-make-tiles system cli-args)
+              (= cmd "spec") (cli-make-specs system cli-args)
+              (= cmd "info") (cli-info system combined)
+              :else (println "I have no idea what to do with" cmd))
+        (component/stop system)
+        (System/exit 0))
+        (catch Exception ex
+          (log/error ex)
+          (System/exit 1))))
