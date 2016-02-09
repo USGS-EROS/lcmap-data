@@ -76,7 +76,7 @@
   [& args]
   (let [cli-args (cli/parse-opts args cli-option-specs)
         db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
-                       :credentials (select-keys cli-args [:username :password])}}
+                       :credentials (select-keys (cli-args :options) [:username :password])}}
         env-opts (util/get-config)
         combined (util/deep-merge env-opts db-opts)
         system   (component/start (sys/build combined))
