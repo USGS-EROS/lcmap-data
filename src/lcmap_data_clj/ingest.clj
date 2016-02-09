@@ -37,7 +37,7 @@
   by band properties. This seq does *NOT* omit bands that do not
   conform to the tile-spec."
   [path system]
-  (log/info "Building band maps from ESPA parsed metadata")
+  (log/debug "Building band maps from ESPA parsed metadata")
   (let [bands (espa/load-metadata path)]
     (for [band bands]
       (-> band
@@ -50,7 +50,7 @@
   align the data to a tiling grid."
   [{spec :tile-spec data :gdal-data :as band}]
   (or (and spec data)
-      (log/info "band not well defined" (:file-name band))))
+      (log/warn "band not well defined" (:file-name band))))
 
 (defn conforms?
   "Determine if a band's GDAL dataset is compatible with tile-spec."
@@ -66,7 +66,7 @@
                     :shift-y (== (data-spec :shift-y) (spec :shift-y))}]
     (log/debug "Conformance check results" checks)
     (or (every? true? (vals checks))
-        (log/info "band does not conform" (:file-name band) checks))))
+        (log/error "band does not conform" (:file-name band) checks))))
 
 ;;; Getting Tile Data
 
@@ -196,12 +196,13 @@
   (let [{tx :tx ty :ty data :data {acquired :acquired source :source {ubid :ubid} :tile-spec} :band} tile
         conn (-> system :database :session)
         table (-> tile :band :tile-spec :table-name)]
-    (log/info "Saving" tx ty ubid acquired source)
+    (log/debug "Saving" tx ty ubid acquired source)
     (cql/insert conn table {:x tx :y ty :ubid ubid :acquired acquired :source source :data data })))
 
 (defn ingest
   "Save raster data at path as tiles."
   [path system]
+  (log/info "Ingesting" path)
   (doseq [band (filter defined? (band-seq path system))
           :when (conforms? band)]
     (doseq [tile (tile-seq band system)
@@ -219,8 +220,7 @@
                                 :satellite :instrument :ubid
                                 :band-name :band-short-name :band-long-name :band-product :band-category
                                 :data-fill :data-range :data-scale :data-type :data-units :data-mask :data-shape])]
-    (log/info "Saving tile spec" (:ubid spec))
-    (log/debug spec)
+    (log/debug "Saving tile spec" spec)
     (try
       (tile-spec/save spec system)
       (catch Exception ex

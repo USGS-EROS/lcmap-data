@@ -35,8 +35,8 @@
                     :protocol-version 3
                     :spec-keyspace "lcmap"
                     :spec-table "tile_specs"}
-               :logger [lcmap-data-clj :debug
-                        com.datastax :info
+               :logger [lcmap-data-clj :error
+                        com.datastax :error
                         co.paralleluniverse :error
                         org.gdal :error]
                :dependencies [[org.clojure/tools.namespace "0.2.11"
