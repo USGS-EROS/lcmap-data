@@ -89,6 +89,5 @@
         (component/stop system)
         (System/exit 0))
       (catch Exception ex
-        (log/error "Unhandled exception")
-        (log/error (ex-data ex))
+        (log/error ex)
         (System/exit 1))))
