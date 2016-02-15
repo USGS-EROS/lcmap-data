@@ -75,7 +75,8 @@
   [[binding path] & body]
   `(let [tf# (fs/temp-file "lcmap-")
          td# (fs/temp-dir "lcmap-")]
-    (try
+     (try
+      (log/info "Uncompressing" ~path "to" td#)
       (uncompress ~path tf#)
       (unarchive tf# td#)
       (let [~binding td#]
