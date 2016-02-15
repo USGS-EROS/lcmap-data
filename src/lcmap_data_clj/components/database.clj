@@ -16,10 +16,11 @@
           keyspace (:spec-keyspace db-cfg)]
       (try
         (cql/use-keyspace session keyspace)
-        (policies/constant-reconnection-policy 250 #_ms)
-        (policies/retry-policy :default)
         (catch Exception ex
           (log/warn "Could not use keyspace")))
+      (policies/constant-reconnection-policy 250 #_ms)
+      (policies/retry-policy :default)
+      (policies/with-consistency-level :any)
       (assoc component :session session)))
   (stop [component]
     (log/info "Stopping DB component ...")
