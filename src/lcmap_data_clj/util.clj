@@ -76,7 +76,7 @@
   `(let [tf# (fs/temp-file "lcmap-")
          td# (fs/temp-dir "lcmap-")]
      (try
-      (log/info "Uncompressing" ~path "to" td#)
+      (log/info "Uncompressing" ~path "to" (.getAbsolutePath td#))
       (uncompress ~path tf#)
       (unarchive tf# td#)
       (let [~binding td#]
@@ -84,6 +84,7 @@
       (catch java.io.IOException ex#
         (log/error (ex-data ex#)))
       (finally
+        (log/info "Cleaning up" td#)
         (fs/delete tf#)
         (fs/delete-dir td#)))))
 
