@@ -8,6 +8,7 @@
                  [org.clojure/tools.namespace "0.2.11"]
                  [org.clojure/tools.logging "0.3.1"]
                  [twig "0.1.4"]
+                 [dire "0.5.4"]
                  [ch.qos.logback/logback-classic "1.1.3"]
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]

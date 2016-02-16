@@ -81,8 +81,6 @@
       (unarchive tf# td#)
       (let [~binding td#]
         (do ~@body))
-      (catch java.io.IOException ex#
-        (log/error (ex-data ex#)))
       (finally
         (log/info "Cleaning up" td#)
         (fs/delete tf#)
