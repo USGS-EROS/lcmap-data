@@ -222,10 +222,7 @@
                                 :band-name :band-short-name :band-long-name :band-product :band-category
                                 :data-fill :data-range :data-scale :data-type :data-units :data-mask :data-shape])]
     (log/debug "Saving tile spec" spec)
-    (try
-      (tile-spec/save spec system)
-      (catch Exception ex
-        (log/error ex)))))
+    (tile-spec/save spec system)))
 
 (defn adopt
   "Save ESPA metadata as tile specs"

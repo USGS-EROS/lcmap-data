@@ -96,13 +96,6 @@
 (defn load-metadata
   "Find and parse metadata at path (a directory)"
   [path]
-  (try
-    (let [xml-path (find-metadata path)
-          xml-data (parse-metadata xml-path)]
-      xml-data)
-    (catch java.io.FileNotFoundException ex
-      (log/error "Could not find ESPA metadata in" path)
-      nil)
-    (catch java.lang.IllegalArgumentException ex
-      (log/error "Could not parse ESPA metadata at" path)
-      nil)))
+  (let [xml-path (find-metadata path)
+        xml-data (parse-metadata xml-path)]
+    xml-data))

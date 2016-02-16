@@ -14,6 +14,7 @@
             [clojure.tools.logging          :as log]
             [clojure.java.io                :as io]
             [com.stuartsierra.component     :as component]
+            [dire.core                      :refer [with-handler!]]
             [lcmap-data-clj.system          :as sys]
             [lcmap-data-clj.ingest          :refer [ingest adopt]]
             [lcmap-data-clj.util            :as util]))
@@ -39,10 +40,7 @@
         cql-file (slurp path)
         statements (map clojure.string/trim (clojure.string/split cql-file #";"))]
     (doseq [stmt (remove empty? statements)]
-      (try
-        (cc/execute conn stmt)
-        (catch Exception ex
-          (log/error "error executing CQL" (ex-data ex)))))))
+      (cc/execute conn stmt))))
 
 (defn cli-exec-cql
   "Executes CQL (useful for creating schema and seeding data)"
@@ -73,21 +71,17 @@
 (defn cli-main
   "Entry point for command line execution"
   [& args]
-    (try
-      (let [cli-args (cli/parse-opts args cli-option-specs)
-            db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
-                           :credentials (select-keys (cli-args :options) [:username :password])}}
-            env-opts (util/get-config)
-            combined (util/deep-merge env-opts db-opts)
-            system   (component/start (sys/build combined))
-            cmd      (-> cli-args :arguments first)]
-        (cond (= cmd "exec") (cli-exec-cql system cli-args)
-              (= cmd "tile") (cli-make-tiles system cli-args)
-              (= cmd "spec") (cli-make-specs system cli-args)
-              (= cmd "info") (cli-info system combined)
-              :else (println "I have no idea what to do with" cmd))
-        (component/stop system)
-        (System/exit 0))
-      (catch Exception ex
-        (log/error ex)
-        (System/exit 1))))
+  (let [cli-args (cli/parse-opts args cli-option-specs)
+        db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
+                       :credentials (select-keys (cli-args :options) [:username :password])}}
+        env-opts (util/get-config)
+        combined (util/deep-merge env-opts db-opts)
+        system   (component/start (sys/build combined))
+        cmd      (-> cli-args :arguments first)]
+    (cond (= cmd "exec") (cli-exec-cql system cli-args)
+          (= cmd "tile") (cli-make-tiles system cli-args)
+          (= cmd "spec") (cli-make-specs system cli-args)
+          (= cmd "info") (cli-info system combined)
+          :else (println "Invalid command:" cmd))
+    (component/stop system)
+    (System/exit 0)))
