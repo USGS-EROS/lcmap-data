@@ -21,7 +21,8 @@
 
 (def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
                         :parse-fn #(clojure.string/split % #"[, ]")
-                        :default (clojure.string/split (System/getenv "LCMAP_HOSTS") #"[, ]")]
+                        :default (clojure.string/split
+                          (or (System/getenv "LCMAP_HOSTS") "") #"[, ]")]
                        ["-u" "--username USERNAME" "Cassandra user ID"
                         :default (System/getenv "LCMAP_USER")]
                        ["-p" "--password PASSWORD" "Cassandra password"
