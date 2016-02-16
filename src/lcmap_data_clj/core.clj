@@ -15,6 +15,7 @@
             [clojure.java.io                :as io]
             [com.stuartsierra.component     :as component]
             [dire.core                      :refer [with-handler!]]
+            [twig.core                      :as twig]
             [lcmap-data-clj.system          :as sys]
             [lcmap-data-clj.ingest          :refer [ingest adopt]]
             [lcmap-data-clj.util            :as util]))
@@ -72,6 +73,7 @@
 (defn cli-main
   "Entry point for command line execution"
   [& args]
+  (twig/set-level! ['lcmap-data-clj] :info)
   (let [cli-args (cli/parse-opts args cli-option-specs)
         db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
                        :credentials (select-keys (cli-args :options) [:username :password])}}
