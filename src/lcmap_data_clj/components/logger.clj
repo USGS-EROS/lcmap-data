@@ -1,4 +1,4 @@
-(ns 
+(ns
   lcmap-data-clj.components.logger
   (:require [clojure.tools.logging :as log]
             [twig.core :as logger]
@@ -11,7 +11,7 @@
   (start [component]
     (log/info "Starting logger component ...")
     (let [ns-levels (partition 2 (get-in component [:config :logger]))]
-      (log/info "Using log-level" ns-levels)
+      (log/debug "Using log-level" ns-levels)
       (doseq [args ns-levels] (apply logger/set-level! args))
       (log/debug "Logging agent:" log/*logging-agent*)
       (log/debug "Logging factory:" (logger/get-factory))
