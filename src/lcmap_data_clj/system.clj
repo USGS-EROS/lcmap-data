@@ -13,8 +13,8 @@
                 (config/new-configuration opts)
                 [])
     :logger   (component/using
-               (logger/new-logger)
-               [:config])
+                (logger/new-logger)
+                [:config])
     :gdal     (component/using
                 (gdal/new-gdal)
                 [:config])
