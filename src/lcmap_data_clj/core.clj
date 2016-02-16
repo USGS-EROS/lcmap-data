@@ -85,3 +85,9 @@
           :else (println "Invalid command:" cmd))
     (component/stop system)
     (System/exit 0)))
+
+(with-handler! #'cli-main
+  java.lang.Exception
+  (fn [e & args]
+    (log/error e)
+    (System/exit 1)))
