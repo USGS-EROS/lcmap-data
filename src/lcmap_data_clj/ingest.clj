@@ -24,6 +24,12 @@
         dataset (gc/open path)]
     (assoc band :gdal-data dataset)))
 
+(defn cleanup
+  "Close an open GDAL dataset"
+  [{data :gdal-data :as band}]
+  (log/debug "Closing GDAL dataset")
+  (.delete data))
+
 (defn get-tile-spec
   "Get tile-spec implied by band's mission, instrument, product, and name"
   [band system]
@@ -208,7 +214,10 @@
     (log/info "Ingesting scene" (get-in band [:tile-spec :ubid]))
     (doseq [tile (tile-seq band system)
             :when (has-data? tile)]
-      (save tile system))))
+      (save tile system))
+    ;; XXX Find a way to open and close a band's dataset
+    ;; in the same context.
+    (cleanup band)))
 
 (defn get-ubid [band]
   (apply str (interpose "/" ((juxt :satellite :instrument :band-name) band))))
