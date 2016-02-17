@@ -14,5 +14,5 @@
     component))
 
 (defn new-gdal []
-  (log/info "Building GDAL component ...")
+  (log/debug "Building GDAL component ...")
   (->GDAL))

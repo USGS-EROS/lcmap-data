@@ -47,12 +47,14 @@
 (defn cli-exec-cql
   "Executes CQL (useful for creating schema and seeding data)"
   [system opts]
+  (log/info "Running command: 'exec'")
   (let [path (-> opts :options :cql)]
     (execute-cql system path)))
 
 (defn cli-make-tiles
   "Generate tiles from an ESPA archive"
   [system opts]
+  (log/info "Running command: 'tile'")
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
@@ -61,6 +63,7 @@
 (defn cli-make-specs
   "Generate specs from an ESPA archive"
   [system opts]
+  (log/info "Running command: 'spec'")
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
@@ -68,6 +71,7 @@
 
 (defn cli-info
   [system config-map]
+  (log/info "Running command: 'info'")
   (pprint/pprint config-map))
 
 (defn cli-main
@@ -85,7 +89,7 @@
           (= cmd "tile") (cli-make-tiles system cli-args)
           (= cmd "spec") (cli-make-specs system cli-args)
           (= cmd "info") (cli-info system combined)
-          :else (println "Invalid command:" cmd))
+          :else (log/error "Invalid command:" cmd))
     (component/stop system)
     (System/exit 0)))
 

@@ -7,7 +7,7 @@
             [lcmap-data-clj.components.logger :as logger]))
 
 (defn build [opts]
-  (log/info "Building system components map")
+  (log/info "Starting system ...")
   (component/system-map
     :config   (component/using
                 (config/new-configuration opts)

@@ -31,5 +31,5 @@
     component))
 
 (defn new-logger []
-  (log/info "Building logger component ...")
+  (log/debug "Building logger component ...")
   (->Logger))

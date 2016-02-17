@@ -241,7 +241,7 @@
                    :tile-x        (* 256 30)
                    :tile-y        (* 256 -30)
                    :data-shape    [256 256]}]
-    (log/info "Adopting all bands as a tile spec" (.getAbsolutePath path))
+    (log/debug   "Adopting all bands as a tile spec" (.getAbsolutePath path))
     (doseq [band (band-seq path system)
             :let [band-ubid {:ubid (get-ubid band)}
                   band-data (:gdal-data band)

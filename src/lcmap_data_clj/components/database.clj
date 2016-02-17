@@ -32,5 +32,5 @@
     (dissoc component :session)))
 
 (defn new-database []
-  (log/info "Building DB component ...")
+  (log/debug "Building DB component ...")
   (->Database))
