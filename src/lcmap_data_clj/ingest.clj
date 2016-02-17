@@ -110,14 +110,14 @@
         driver    (gdal.core/get-driver-by-name "MEM")
         layers    (gdal.dataset/get-band-count data)
         data-type (gdal.band/get-data-type (gdal.dataset/get-band data 1))
-        result    (. driver Create "copy" (:x new-bounds) (:y new-bounds) layers data-type)
+        result    (.Create driver "copy" (:x new-bounds) (:y new-bounds) layers data-type)
         layer     (gdal.dataset/get-band result 1)
         fill      (:data-fill spec)
         affine [(:w new-bounds) (:pixel-x spec) 0 (:n new-bounds) 0 (:pixel-y spec)]]
     (log/debug "Reproject using" affine "filled with" (:data-fill spec))
-    (. result SetGeoTransform (double-array affine))
-    (. result SetProjection (gdal.dataset/get-projection-str data))
-    (if fill (. layer Fill (:data-fill spec)))
+    (.SetGeoTransform result (double-array affine))
+    (.SetProjection result (gdal.dataset/get-projection-str data))
+    (if fill (.Fill layer (:data-fill spec)))
     (gdal/ReprojectImage data result)
     result))
 
@@ -162,10 +162,10 @@
   (let [band (tile :band)
         buffer (tile :data)
         data-type (-> band :tile-spec :data-type)]
-    (. buffer order (. java.nio.ByteOrder nativeOrder))
+    (.order buffer (.nativeOrder java.nio.ByteOrder))
     (condp = data-type
-      "INT16" (. buffer asShortBuffer)
-      "UINT8" (. buffer asCharBuffer))))
+      "INT16" (.asShortBuffer buffer)
+      "UINT8" (.asCharBuffer buffer))))
 
 (defn band->fill-buffer
   "Create a buffer that can be used to quickly determine if a tile is
@@ -177,11 +177,11 @@
                      (-> band :tile-spec get-step :step-y))]
     (condp = data-type
       "INT16" (let [buffer (java.nio.ShortBuffer/allocate data-size)
-                    backer (. buffer array)]
+                    backer (.array buffer)]
                 (java.util.Arrays/fill backer (short data-fill))
                 buffer)
       "UINT8" (let [buffer (java.nio.CharBuffer/allocate data-size)
-                    backer (. buffer array)]
+                    backer (.array buffer)]
                 (java.util.Arrays/fill backer (char data-fill))
                 buffer))))
 
@@ -192,7 +192,7 @@
   (if (-> tile :tile-spec :data-fill)
     (let [buffer (tile->buffer tile)
           filler (band->fill-buffer (tile :band))]
-      (not= 0 (. buffer compareTo filler)))
+      (not= 0 (.compareTo buffer filler)))
     ;; We assue that tile specs that lack fill data always
     ;; have some relevant value. This might be a bad idea
     ;; because some bands may have tiles for an acquisition
@@ -257,10 +257,13 @@
   [band system]
   (let [spec (select-keys band [:keyspace-name :table-name
                                 :projection
-                                :tile-x :tile-y :pixel-x :pixel-y :shift-x :shift-y
+                                :tile-x :tile-y :pixel-x :pixel-y
+                                :shift-x :shift-y
                                 :satellite :instrument :ubid
-                                :band-name :band-short-name :band-long-name :band-product :band-category
-                                :data-fill :data-range :data-scale :data-type :data-units :data-mask :data-shape])]
+                                :band-name :band-short-name :band-long-name
+                                :band-product :band-category
+                                :data-fill :data-range :data-scale :data-type
+                                :data-units :data-mask :data-shape])]
     (log/debug "Saving tile spec" spec)
     (tile-spec/save spec system)))
 
