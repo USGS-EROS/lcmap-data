@@ -21,7 +21,7 @@
   ;; ...send a pull request so gdal.core/open works with
   ;; a file object?
   (let [file (io/file path (band :file-name))
-        path (. file getAbsolutePath)
+        path (.getAbsolutePath file)
         dataset (gdal.core/open path)]
     (assoc band :gdal-data dataset)))
 
@@ -161,7 +161,7 @@
   [tile]
   (let [band (tile :band)
         buffer (tile :data)
-        data-type (-> band :tile-spec :data-type)]
+        data-type (get-in band [:tile-spec :data-type])]
     (.order buffer (.nativeOrder java.nio.ByteOrder))
     (condp = data-type
       "INT16" (.asShortBuffer buffer)
@@ -171,8 +171,8 @@
   "Create a buffer that can be used to quickly determine if a tile is
   composed entirely of fill data."
   [band]
-  (let [data-type (-> band :tile-spec :data-type)
-        data-fill (-> band :tile-spec :data-fill)
+  (let [data-type (get-in band [:tile-spec :data-type])
+        data-fill (get-in band [:tile-spec :data-fill])
         data-size (* (-> band :tile-spec get-step :step-x)
                      (-> band :tile-spec get-step :step-y))]
     (condp = data-type
@@ -189,7 +189,7 @@
   "Determine if tile's data buffer is more than just fill data."
   [tile]
   (log/debug "Checking tile for all fill-data")
-  (if (-> tile :tile-spec :data-fill)
+  (if (get-in tile [:tile-spec :data-fill])
     (let [buffer (tile->buffer tile)
           filler (band->fill-buffer (tile :band))]
       (not= 0 (.compareTo buffer filler)))
@@ -203,8 +203,8 @@
   "Insert data into database"
   [tile system]
   (let [{tx :tx ty :ty data :data {acquired :acquired source :source {ubid :ubid} :tile-spec} :band} tile
-        conn (-> system :database :session)
-        table (-> tile :band :tile-spec :table-name)]
+        conn (get-in system [:database :session])
+        table (get-in tile [:band :tile-spec :table-name])]
     (log/debug "Saving" tx ty ubid acquired source)
     (cql/insert-async conn table {:x tx :y ty :ubid ubid :acquired acquired :source source :data data })))
 
