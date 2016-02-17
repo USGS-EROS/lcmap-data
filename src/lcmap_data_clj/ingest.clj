@@ -1,14 +1,15 @@
 (ns lcmap-data-clj.ingest
-  (:require [lcmap-data-clj.util :as util]
-            [lcmap-data-clj.espa :as espa]
-            [lcmap-data-clj.tile-spec :as tile-spec]
+  (:require [clojure.core.memoize :as memo]
+            [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
+            [clojurewerkz.cassaforte.cql :as cql]
+            [pandect.algo.md5 :as md5]
             [gdal.core]
             [gdal.dataset]
             [gdal.band]
-            [pandect.algo.md5 :as md5]
-            [clojure.tools.logging :as log]
-            [clojure.java.io :as io]
-            [clojurewerkz.cassaforte.cql :as cql])
+            [lcmap-data-clj.espa :as espa]
+            [lcmap-data-clj.tile-spec :as tile-spec]
+            [lcmap-data-clj.util :as util])
   (:import [java.nio ByteBuffer ShortBuffer CharBuffer]
            [org.gdal.gdal gdal]))
 
@@ -37,6 +38,15 @@
   (let [params (select-keys band [:mission :instrument :product :band-name])
         specs (tile-spec/find-spec params system)]
     (assoc band :tile-spec (first specs))))
+
+(def get-tile-buffer
+  "Create a buffer memoized on data-size and data-fill."
+  (clojure.core.memoize/lu
+    (fn [data-size data-fill]
+      (let [buffer (java.nio.ShortBuffer/allocate data-size)
+            backer (.array buffer)]
+        (java.util.Arrays/fill backer (short data-fill))
+        buffer))))
 
 (defn band-seq
   "Builds seq of band maps for ESPA archive at path. This will open
@@ -168,22 +178,13 @@
       "UINT8" (.asCharBuffer buffer))))
 
 (defn band->fill-buffer
-  "Create a buffer that can be used to quickly determine if a tile is
-  composed entirely of fill data."
+  "Get a properly-sized buffer that can be used to quickly determine if a tile
+  is composed entirely of fill data."
   [band]
-  (let [data-type (get-in band [:tile-spec :data-type])
-        data-fill (get-in band [:tile-spec :data-fill])
+  (let [data-fill (get-in band [:tile-spec :data-fill])
         data-size (* (-> band :tile-spec get-step :step-x)
                      (-> band :tile-spec get-step :step-y))]
-    (condp = data-type
-      "INT16" (let [buffer (java.nio.ShortBuffer/allocate data-size)
-                    backer (.array buffer)]
-                (java.util.Arrays/fill backer (short data-fill))
-                buffer)
-      "UINT8" (let [buffer (java.nio.CharBuffer/allocate data-size)
-                    backer (.array buffer)]
-                (java.util.Arrays/fill backer (char data-fill))
-                buffer))))
+    (get-tile-buffer data-size data-fill)))
 
 (defn has-data?
   "Determine if tile's data buffer is more than just fill data."

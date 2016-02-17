@@ -17,7 +17,7 @@
             [dire.core                      :refer [with-handler!]]
             [twig.core                      :as twig]
             [lcmap-data-clj.system          :as sys]
-            [lcmap-data-clj.ingest          :refer [ingest adopt]]
+            [lcmap-data-clj.ingest]
             [lcmap-data-clj.util            :as util]))
 
 (def cli-option-specs
@@ -61,7 +61,7 @@
         do-hash? (get-in opts [:options :checksum-ingest])]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest dir system :do-hash? do-hash?)))))
+        (ingest/ingest dir system :do-hash? do-hash?)))))
 
 (defn cli-make-specs
   "Generate specs from an ESPA archive"
@@ -70,7 +70,7 @@
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (adopt dir system)))))
+        (ingest/adopt dir system)))))
 
 (defn cli-info
   [system config-map]
