@@ -19,6 +19,7 @@
                  [me.raynes/fs "1.4.6"]
                  [clj-gdal "0.2.0"]
                  [com.stuartsierra/component "0.3.1"]
+                 [pandect "0.5.4"]
                  [leiningen-core "2.5.3"]]
   :aliases {"db" ["run" "-m" "lcmap-data-clj.core/cli-main"]}
   :repl-options {:init-ns lcmap-data-clj.dev}
@@ -40,7 +41,7 @@
                         com.datastax :error
                         co.paralleluniverse :error
                         org.gdal :error]
-               :dependencies [[org.clojure/tools.namespace "0.2.11"
-                               slamhound "1.5.5"]]
+               :dependencies [[org.clojure/tools.namespace "0.2.11"]
+                              [slamhound "1.5.5"]]
                :aliases {"slamhound" ["run" "-m" "slam.hound"]}
                :plugins [[lein-kibit "0.1.2"]]}}})

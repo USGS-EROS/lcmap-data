@@ -2,9 +2,10 @@
   (:require [lcmap-data-clj.util :as util]
             [lcmap-data-clj.espa :as espa]
             [lcmap-data-clj.tile-spec :as tile-spec]
-            [gdal.core :as gc]
-            [gdal.dataset :as gd]
-            [gdal.band :as gb]
+            [gdal.core]
+            [gdal.dataset]
+            [gdal.band]
+            [pandect.algo.md5 :as md5]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [clojurewerkz.cassaforte.cql :as cql])
@@ -17,11 +18,11 @@
   "Open GDAL dataset referred to by band file-name"
   [band path]
   ;; TBD: what to do if the file fails to open?
-  ;; ...send a pull request so gc/open works with
+  ;; ...send a pull request so gdal.core/open works with
   ;; a file object?
   (let [file (io/file path (band :file-name))
         path (. file getAbsolutePath)
-        dataset (gc/open path)]
+        dataset (gdal.core/open path)]
     (assoc band :gdal-data dataset)))
 
 (defn cleanup
@@ -79,9 +80,9 @@
 (defn get-bounds
   "Find bounding box (in projection coordinate system) of a GDAL dataset"
   [{dataset :gdal-data :as band}]
-  (let [[ux sx _ uy _ sy] (gd/get-geo-transform dataset)
-        px (gd/get-x-size dataset)
-        py (gd/get-y-size dataset)
+  (let [[ux sx _ uy _ sy] (gdal.dataset/get-geo-transform dataset)
+        px (gdal.dataset/get-x-size dataset)
+        py (gdal.dataset/get-y-size dataset)
         lx (+ ux (* sx px))
         ly (+ uy (* sy py))]
     {:w ux :n uy :e lx :s ly :x px :y py}))
@@ -106,16 +107,16 @@
   "Create a new GDAL dataset for band using the band's tile-spec."
   [{spec :tile-spec data :gdal-data :as band}]
   (let [new-bounds (get-frame band)
-        driver    (gc/get-driver-by-name "MEM")
-        layers    (gd/get-band-count data)
-        data-type (gb/get-data-type (gd/get-band data 1))
+        driver    (gdal.core/get-driver-by-name "MEM")
+        layers    (gdal.dataset/get-band-count data)
+        data-type (gdal.band/get-data-type (gdal.dataset/get-band data 1))
         result    (. driver Create "copy" (:x new-bounds) (:y new-bounds) layers data-type)
-        layer     (gd/get-band result 1)
+        layer     (gdal.dataset/get-band result 1)
         fill      (:data-fill spec)
         affine [(:w new-bounds) (:pixel-x spec) 0 (:n new-bounds) 0 (:pixel-y spec)]]
     (log/debug "Reproject using" affine "filled with" (:data-fill spec))
     (. result SetGeoTransform (double-array affine))
-    (. result SetProjection (gd/get-projection-str data))
+    (. result SetProjection (gdal.dataset/get-projection-str data))
     (if fill (. layer Fill (:data-fill spec)))
     (gdal/ReprojectImage data result)
     result))
@@ -123,7 +124,7 @@
 (defn proj-point-finder
   "Build projection coordinate locating function for dataset"
   [dataset]
-  (let [[px sx _ py _ sy] (gd/get-geo-transform dataset)]
+  (let [[px sx _ py _ sy] (gdal.dataset/get-geo-transform dataset)]
     (log/debug "Build a projection system point finder with" px sx py sy)
     (fn [{x :x y :y :as tile}]
       (log/debug "locate raster grid x/y" x y "using" px sx py sy)
@@ -149,8 +150,10 @@
   (let [{step-x :step-x step-y :step-y} (get-step (:tile-spec band))
         framed (reproject band)
         locate (proj-point-finder framed)
-        raster (gd/get-band framed 1)]
-    (for [tile (gb/raster-seq raster :xstep (int step-x) :ystep (int step-y))]
+        raster (gdal.dataset/get-band framed 1)]
+    (for [tile (gdal.band/raster-seq raster
+                                     :xstep (int step-x)
+                                     :ystep (int step-y))]
       (-> tile locate (assoc :band band)))))
 
 (defn tile->buffer
@@ -205,19 +208,47 @@
     (log/debug "Saving" tx ty ubid acquired source)
     (cql/insert-async conn table {:x tx :y ty :ubid ubid :acquired acquired :source source :data data })))
 
-(defn ingest
-  "Save raster data at path as tiles."
-  [path system]
+(defn- -ingest
+  "This function does the actual work of ingest."
+  [path system aux-fn]
   (log/info "Ingesting archive" (.getAbsolutePath path))
   (doseq [band (filter defined? (band-seq path system))
           :when (conforms? band)]
-    (log/info "Ingesting scene" (get-in band [:tile-spec :ubid]))
+    (log/info "Ingesting band" (get-in band [:tile-spec :ubid]))
     (doseq [tile (tile-seq band system)
             :when (has-data? tile)]
+      (aux-fn tile)
       (save tile system))
     ;; XXX Find a way to open and close a band's dataset
     ;; in the same context.
     (cleanup band)))
+
+(defn ingest-with-hash
+  "Set up auxilary function so that each tile will have a hash saved
+  to a file."
+  [path system]
+  (log/info "Preparing to ingest and hash tiles ...")
+  (let [dir (System/getProperty "java.io.tmpdir")
+        filename (str dir "/ingest-hashes.txt")]
+    (with-open [wtr (io/writer filename)]
+      (-ingest path system (fn [data]
+                             (let [direct-buffer (:data data)
+                                   _ (.rewind direct-buffer)
+                                   char-data (.toString (.asCharBuffer direct-buffer))]
+                               (.write wtr (str (md5/md5 char-data) "\n"))))))
+    (log/info "Saved hash file to" filename)))
+
+(defn ingest-without-hash
+  "Set up an auxilary no-op function (the default case)."
+  [path system]
+  (-ingest path system identity))
+
+(defn ingest
+  "Save raster data at path as tiles."
+  [path system & {:keys [do-hash?]}]
+  (if do-hash?
+    (ingest-with-hash path system)
+    (ingest-without-hash path system)))
 
 (defn get-ubid [band]
   (apply str (interpose "/" ((juxt :satellite :instrument :band-name) band))))

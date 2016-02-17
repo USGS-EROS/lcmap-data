@@ -20,20 +20,22 @@
             [lcmap-data-clj.ingest          :refer [ingest adopt]]
             [lcmap-data-clj.util            :as util]))
 
-(def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
-                        :parse-fn #(clojure.string/split % #"[, ]")
-                        :default (clojure.string/split
-                          (or (System/getenv "LCMAP_HOSTS") "") #"[, ]")]
-                       ["-u" "--username USERNAME" "Cassandra user ID"
-                        :default (System/getenv "LCMAP_USER")]
-                       ["-p" "--password PASSWORD" "Cassandra password"
-                        :default (System/getenv "LCMAP_PASS")]
-                       ["-k" "--spec-keyspace SPEC_KEYSPACE" ""
-                        :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
-                       ["-t" "--spec-table SPEC_TABLE" ""
-                        :default (System/getenv "LCMAP_SPEC_TABLE")]
-                       ["-c" "--cql PATH_TO_CQL" ""
-                        :default "resources/schema.cql"]])
+(def cli-option-specs
+  [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
+    :parse-fn #(clojure.string/split % #"[, ]")
+    :default (clojure.string/split
+      (or (System/getenv "LCMAP_HOSTS") "") #"[, ]")]
+   ["-u" "--username USERNAME" "Cassandra user ID"
+    :default (System/getenv "LCMAP_USER")]
+   ["-p" "--password PASSWORD" "Cassandra password"
+    :default (System/getenv "LCMAP_PASS")]
+   ["-k" "--spec-keyspace SPEC_KEYSPACE" ""
+    :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
+   ["-t" "--spec-table SPEC_TABLE" ""
+    :default (System/getenv "LCMAP_SPEC_TABLE")]
+   ["-c" "--cql PATH_TO_CQL" ""
+    :default "resources/schema.cql"]
+   ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]])
 
 (defn execute-cql
   "Execute all statements in file specified by path"
@@ -55,10 +57,11 @@
   "Generate tiles from an ESPA archive"
   [system opts]
   (log/info "Running command: 'tile'")
-  (let [paths (-> opts :arguments rest)]
+  (let [paths (-> opts :arguments rest)
+        do-hash? (get-in opts [:options :checksum-ingest])]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest dir system)))))
+        (ingest dir system :do-hash? do-hash?)))))
 
 (defn cli-make-specs
   "Generate specs from an ESPA archive"
