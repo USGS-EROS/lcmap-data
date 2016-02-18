@@ -17,7 +17,7 @@
             [dire.core                      :refer [with-handler!]]
             [twig.core                      :as twig]
             [lcmap-data-clj.system          :as sys]
-            [lcmap-data-clj.ingest]
+            [lcmap-data-clj.ingest          :as ingest]
             [lcmap-data-clj.util            :as util]))
 
 (def cli-option-specs
@@ -35,6 +35,11 @@
     :default (System/getenv "LCMAP_SPEC_TABLE")]
    ["-c" "--cql PATH_TO_CQL" ""
     :default "resources/schema.cql"]
+   ["-b" "--batch-size LCMAP_INGEST_BATCH_SIZE"
+    "The size to partition jobs into for operations that parallelize
+    tasks, such as tiling."
+    :default 10
+    :parse-fn #(Integer/parseInt %)]
    ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]])
 
 (defn execute-cql
@@ -57,11 +62,10 @@
   "Generate tiles from an ESPA archive"
   [system opts]
   (log/info "Running command: 'tile'")
-  (let [paths (-> opts :arguments rest)
-        do-hash? (get-in opts [:options :checksum-ingest])]
+  (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest/ingest dir system :do-hash? do-hash?)))))
+        (ingest/ingest dir system)))))
 
 (defn cli-make-specs
   "Generate specs from an ESPA archive"
@@ -85,7 +89,7 @@
         db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
                        :credentials (select-keys (cli-args :options) [:username :password])}}
         env-opts (util/get-config)
-        combined (util/deep-merge env-opts db-opts)
+        combined (util/deep-merge env-opts db-opts {:opts (:options cli-args)})
         system   (component/start (sys/build combined))
         cmd      (-> cli-args :arguments first)]
     (cond (= cmd "exec") (cli-exec-cql system cli-args)

@@ -1,5 +1,4 @@
-(ns
-  lcmap-data-clj.components.logger
+(ns lcmap-data-clj.components.logger
   (:require [clojure.tools.logging :as log]
             [twig.core :as logger]
             [com.stuartsierra.component :as component]
