@@ -1,8 +1,8 @@
 (defproject  gov.usgs.eros/lcmap-data-clj "0.1.0-SNAPSHOT"
   :description "LCMAP data layer management tools"
   :url "http://github.com/USGS-EROS/lcmap-data-clj"
-  :license {:name "TBD"
-            :url ""}
+  :license {:name "NASA Open Source Agreement, Version 1.3"
+            :url "http://ti.arc.nasa.gov/opensource/nosa/"}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/core.memoize "0.5.8"]
                  [org.clojure/data.xml "0.0.8"]

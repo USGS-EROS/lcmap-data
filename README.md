@@ -65,7 +65,6 @@ works with archives, it does not handle paths to decompressed archives yet.
 
 ## License
 
-Copyright © 2015-2016
+Copyright © 2015 United States Government
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+NASA Open Source Agreement, Version 1.3
