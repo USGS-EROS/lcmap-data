@@ -65,6 +65,6 @@ works with archives, it does not handle paths to decompressed archives yet.
 
 ## License
 
-Copyright © 2015-2016, USGS EROS
+Copyright © 2015 United States Government
 
 NASA Open Source Agreement, Version 1.3
