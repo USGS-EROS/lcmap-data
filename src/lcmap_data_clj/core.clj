@@ -38,9 +38,11 @@
    ["-b" "--batch-size LCMAP_INGEST_BATCH_SIZE"
     "The size to partition jobs into for operations that parallelize
     tasks, such as tiling."
-    :default 10
+    :default 50
     :parse-fn #(Integer/parseInt %)]
-   ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]])
+   ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]
+   [nil "--checksum-outfile" "Save the checksums to a particular file."]
+   ])
 
 (defn execute-cql
   "Execute all statements in file specified by path"
