@@ -1,5 +1,6 @@
 (ns lcmap.data.ingest
   (:require [clojure.core.memoize :as memo]
+            [clojure.core.reducers :as r]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clojurewerkz.cassaforte.cql :as cql]
@@ -229,6 +230,12 @@
     (cql/insert-async conn table {:x tx :y ty :ubid ubid :acquired acquired :source source :data data }))
   tile)
 
+(defn reducer-no-op
+  ""
+  ([] [])
+  ([_ _] [])
+  ([_ _ _] []))
+
 (defn process-tile
   "Process tile data."
   [system aux-fn tile]
@@ -244,9 +251,13 @@
   (log/info "Ingesting band:" (get-in band [:tile-spec :ubid]))
   (->> band
        (get-tiles system)
-       (filter has-data?)
-       (map #(process-tile system aux-fn %))
-       (partition (get-in system [:config :opts :batch-size]))
+       (r/filter has-data?)
+       (r/map #(process-tile system aux-fn %))
+       ;(partition (get-in system [:config :opts :batch-size]))
+       (r/fold
+         (get-in system [:config :opts :batch-size])
+         reducer-no-op
+         reducer-no-op)
        (into [])))
 
 (defn process-scene
