@@ -26,12 +26,17 @@
         dataset (gdal.core/open path)]
     (assoc band :gdal-data dataset)))
 
-(defn cleanup
+(defn cleanup-tile
   "Close the tile's open GDAL dataset"
   [{{data :gdal-data} :band :as tile}]
   (log/debug "Closing GDAL dataset and updating tile data ...")
   (.delete data)
   (assoc-in tile [:band :gdal-data] nil))
+
+(defn cleanup-tiles
+  ""
+  [tiles]
+  (map cleanup-tile tiles))
 
 (defn get-tile-spec
   "Get tile-spec implied by band's mission, instrument, product, and name"
@@ -218,16 +223,28 @@
     ;; moment whereas others will not.
     true))
 
+(defn make-record
+  ""
+  [{tx :tx ty :ty data :data {acquired :acquired source :source {ubid :ubid} :tile-spec} :band}]
+  {:x tx :y ty :ubid ubid :acquired acquired :source source :data data })
+
 (defn save
   "Insert data into database"
   [system tile]
   (log/debug "Saving tile data ...")
-  (let [{tx :tx ty :ty data :data {acquired :acquired source :source {ubid :ubid} :tile-spec} :band} tile
-        conn (get-in system [:database :session])
+  (let [conn (get-in system [:database :session])
         table (get-in tile [:band :tile-spec :table-name])]
-    (log/debug "Saving" tx ty ubid acquired source)
-    (cql/insert-async conn table {:x tx :y ty :ubid ubid :acquired acquired :source source :data data }))
+    (cql/insert-async conn table (make-record tile)))
   tile)
+
+(defn batch-save
+  "Insert data into database"
+  [system tiles]
+  (log/debug "Batch-saving tiles ...")
+  (let [conn (get-in system [:database :session])
+        table (get-in (first tiles) [:band :tile-spec :table-name])]
+    (cql/insert-batch-async conn table (map make-record tiles)))
+  tiles)
 
 (defn process-tile
   "Process tile data."
@@ -235,8 +252,9 @@
   (log/debug "Procesing tile ...")
   (->> tile
        (aux-fn)
-       (save system)
-       (cleanup)))
+       ;(save system)
+       ;(cleanup-tile)
+       ))
 
 (defn process-band
   "Process band data."
@@ -246,6 +264,8 @@
        (get-tiles system)
        (filter has-data?)
        (map #(process-tile system aux-fn %))
+       (batch-save system)
+       (cleanup-tiles)
        (partition (get-in system [:config :opts :batch-size]))
        (into [])))
 
