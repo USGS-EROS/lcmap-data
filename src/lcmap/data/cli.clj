@@ -42,7 +42,8 @@
     :default 50
     :parse-fn #(Integer/parseInt %)]
    ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]
-   [nil "--checksum-outfile" "Save the checksums to a particular file."]
+   [nil "--checksum-outfile FILENAME" "Save the checksums to a particular file."
+    :default (str (System/getProperty "java.io.tmpdir") "/ingest-hashes.txt")]
    ])
 
 (defn execute-cql

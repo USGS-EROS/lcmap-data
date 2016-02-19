@@ -282,12 +282,10 @@
   to a file."
   [path system]
   (log/info "Preparing to ingest and hash tiles ...")
-  (let [file (or
-               (get-in system [:config :opts :checksum-outfile])
-               (util/create-temp-file "ingest-hashes.txt"))]
+  (let [file (io/file (get-in system [:config :opts :checksum-outfile]))]
     (with-open [wtr (io/writer file)]
       (-ingest path system (fn [tile] (write-hash tile wtr))))
-    (log/info "Saved hash file to" file)))
+    (log/info "Saved hash file to" (.getPath file))))
 
 (defn ingest-without-hash
   "Set up an auxilary no-op function (the default case)."
