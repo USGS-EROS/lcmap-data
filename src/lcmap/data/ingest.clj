@@ -258,7 +258,7 @@
          (get-in system [:config :opts :batch-size])
          reducer-no-op
          reducer-no-op)
-       (into [])))
+       (r/foldcat)))
 
 (defn process-scene
   "Process scene data."
