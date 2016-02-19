@@ -58,15 +58,15 @@
 
 (defn exec-cql
   "Executes CQL (useful for creating schema and seeding data)"
-  [system opts]
-  (log/info "Running command: 'exec'")
+  [cmd system opts]
+  (log/infof "Running command: '%s'" cmd)
   (let [path (-> opts :options :cql)]
     (execute-cql system path)))
 
 (defn make-tiles
   "Generate tiles from an ESPA archive"
-  [system opts]
-  (log/info "Running command: 'tile'")
+  [cmd system opts]
+  (log/infof "Running command: '%s'" cmd)
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
@@ -74,8 +74,8 @@
 
 (defn make-specs
   "Generate specs from an ESPA archive"
-  [system opts]
-  (log/info "Running command: 'spec'")
+  [cmd system opts]
+  (log/infof "Running command: '%s'" cmd)
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
@@ -116,9 +116,9 @@
   (twig/set-level! ['lcmap.data] :info)
   (let [cmd (-> cli-args :arguments first)
         system (component/start (sys/build combined-cfg))]
-    (cond (= cmd "run-cql") (exec-cql system cli-args)
-          (= cmd "tile") (make-tiles system cli-args)
-          (= cmd "spec") (make-specs system cli-args)
+    (cond (= cmd "run-cql") (exec-cql cmd system cli-args)
+          (= cmd "load-spec") (make-specs cmd system cli-args)
+          (= cmd "ingest") (make-tiles cmd system cli-args)
           :else (log/error "Invalid command:" cmd))
     (component/stop system)
     (exit 0)))
