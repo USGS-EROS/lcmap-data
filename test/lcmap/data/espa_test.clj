@@ -1,7 +1,7 @@
-(ns lcmap-data-clj.espa-test
+(ns lcmap.data.espa-test
   (:require [clojure.test :refer :all]
-            [lcmap-data-clj.shared-test :as shared]
-            [lcmap-data-clj.espa :refer :all]))
+            [lcmap.data.shared-test :as shared]
+            [lcmap.data.espa :refer :all]))
 
 (deftest load-metadata-test
   (let [path (shared/L8 :dir)

@@ -1,4 +1,4 @@
-(ns lcmap-data-clj.ingest
+(ns lcmap.data.ingest
   (:require [clojure.core.memoize :as memo]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
@@ -7,9 +7,9 @@
             [gdal.core]
             [gdal.dataset]
             [gdal.band]
-            [lcmap-data-clj.espa :as espa]
-            [lcmap-data-clj.tile-spec :as tile-spec]
-            [lcmap-data-clj.util :as util])
+            [lcmap.data.espa :as espa]
+            [lcmap.data.tile-spec :as tile-spec]
+            [lcmap.data.util :as util])
   (:import [java.nio ByteBuffer ShortBuffer CharBuffer]
            [org.gdal.gdal gdal]))
 

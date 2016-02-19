@@ -1,4 +1,4 @@
-# lcmap-data-clj
+# lcmap.data
 
 ## Configuration
 
