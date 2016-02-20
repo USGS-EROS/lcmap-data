@@ -20,7 +20,6 @@
            [org.apache.commons.compress.compressors
             CompressorInputStream CompressorStreamFactory]))
 
-
 ;;; Compressed Archives Utilities
 
 (defn entries
