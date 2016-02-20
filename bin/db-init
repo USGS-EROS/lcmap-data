@@ -1,0 +1,15 @@
+#! /bin/bash
+
+
+IMAGE="usgseros/ubuntu-lcmap-data:0.1.9"
+
+
+## Load the schema
+# docker run --env-file=env --volume /espa_product_cache/downloads/assessments/lcmap:/app/data usgseros/ubuntu-lcmap-data:0.1.7 /bin/bash -c 'lein db exec'
+
+## Adopt tile specs for Landsat 5, 7, 8 -- CONUS ESPA outputs
+# 
+docker run --env-file=env --volume /espa_product_cache/downloads/assessments/lcmap:/app/data $IMAGE /bin/bash -c 'lein db spec /app/data/p46r27/LC80460272015014-SC20160112145039.tar.gz'
+docker run --env-file=env --volume /espa_product_cache/downloads/assessments/lcmap:/app/data $IMAGE /bin/bash -c 'lein db spec /app/data/p46r27/LE70460272011011-SC20160112142609.tar.gz'
+docker run --env-file=env --volume /espa_product_cache/downloads/assessments/lcmap:/app/data $IMAGE /bin/bash -c 'lein db spec /app/data/p46r27/LT50460272011003-SC20160112142205.tar.gz'
+

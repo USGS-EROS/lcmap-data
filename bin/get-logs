@@ -1,0 +1,5 @@
+#!/bin/bash
+for c in  `docker ps --all --format {{.Names}}`
+do
+    docker logs $c > "$c.log"
+done
