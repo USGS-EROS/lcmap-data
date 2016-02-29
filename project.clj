@@ -4,14 +4,12 @@
   :license {:name "NASA Open Source Agreement, Version 1.3"
             :url "http://ti.arc.nasa.gov/opensource/nosa/"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/tools.cli "0.3.3"]
-                 [org.clojure/tools.namespace "0.2.11"]
-                 [org.clojure/tools.logging "0.3.1"]
-                 [twig "0.1.4"]
-                 [dire "0.5.4"]
-                 [ch.qos.logback/logback-classic "1.1.3"]
+                 [org.clojure/core.memoize "0.5.8"]
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
+                 [org.clojure/tools.cli "0.3.3"]
+                 [twig "0.1.4"]
+                 [dire "0.5.4"]
                  [clojurewerkz/cassaforte "2.0.0"]
                  [net.jpountz.lz4/lz4 "1.3.0"]
                  [org.xerial.snappy/snappy-java "1.1.2"]
@@ -26,21 +24,23 @@
                    :slow    :integration
                    :fast    (complement :integration)
                    :all     (constantly true)}
-  :profiles {:dev
-             {:env
-              {:active-profile "dev"
-               ;; Use environment variables for DB configuration:
-               ;; LCMAP_HOSTS, LCMAP_USER, LCMAP_PASS
-               :db {:hosts []
-                    :port 9042
-                    :protocol-version 3
-                    :spec-keyspace "lcmap"
-                    :spec-table "tile_specs"}
-               :logger [lcmap-data-clj :info
-                        com.datastax :error
-                        co.paralleluniverse :error
-                        org.gdal :error]
-               :dependencies [[org.clojure/tools.namespace "0.2.11"
-                               slamhound "1.5.5"]]
-               :aliases {"slamhound" ["run" "-m" "slam.hound"]}
-               :plugins [[lein-kibit "0.1.2"]]}}})
+  :profiles {
+    :dev {
+      :dependencies [[org.clojure/tools.namespace "0.2.11"]
+                     [pandect "0.5.4"]
+                     [slamhound "1.5.5"]]
+      :plugins [[lein-kibit "0.1.2"]]
+      :aliases {"slamhound" ["run" "-m" "slam.hound"]}
+      :env
+       {:active-profile "dev"
+        ;; Use environment variables for DB configuration:
+        ;; LCMAP_HOSTS, LCMAP_USER, LCMAP_PASS
+        :db {:hosts []
+             :port 9042
+             :protocol-version 3
+             :spec-keyspace "lcmap"
+             :spec-table "tile_specs"}
+        :logger [lcmap-data-clj :info
+                 com.datastax :error
+                 co.paralleluniverse :error
+                 org.gdal :error]}}})

@@ -17,23 +17,32 @@
             [dire.core                      :refer [with-handler!]]
             [twig.core                      :as twig]
             [lcmap-data-clj.system          :as sys]
-            [lcmap-data-clj.ingest          :refer [ingest adopt]]
+            [lcmap-data-clj.ingest          :as ingest]
             [lcmap-data-clj.util            :as util]))
 
-(def cli-option-specs [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
-                        :parse-fn #(clojure.string/split % #"[, ]")
-                        :default (clojure.string/split
-                          (or (System/getenv "LCMAP_HOSTS") "") #"[, ]")]
-                       ["-u" "--username USERNAME" "Cassandra user ID"
-                        :default (System/getenv "LCMAP_USER")]
-                       ["-p" "--password PASSWORD" "Cassandra password"
-                        :default (System/getenv "LCMAP_PASS")]
-                       ["-k" "--spec-keyspace SPEC_KEYSPACE" ""
-                        :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
-                       ["-t" "--spec-table SPEC_TABLE" ""
-                        :default (System/getenv "LCMAP_SPEC_TABLE")]
-                       ["-c" "--cql PATH_TO_CQL" ""
-                        :default "resources/schema.cql"]])
+(def cli-option-specs
+  [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
+    :parse-fn #(clojure.string/split % #"[, ]")
+    :default (clojure.string/split
+      (or (System/getenv "LCMAP_HOSTS") "") #"[, ]")]
+   ["-u" "--username USERNAME" "Cassandra user ID"
+    :default (System/getenv "LCMAP_USER")]
+   ["-p" "--password PASSWORD" "Cassandra password"
+    :default (System/getenv "LCMAP_PASS")]
+   ["-k" "--spec-keyspace SPEC_KEYSPACE" ""
+    :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
+   ["-t" "--spec-table SPEC_TABLE" ""
+    :default (System/getenv "LCMAP_SPEC_TABLE")]
+   ["-c" "--cql PATH_TO_CQL" ""
+    :default "resources/schema.cql"]
+   ["-b" "--batch-size LCMAP_INGEST_BATCH_SIZE"
+    "The size to partition jobs into for operations that parallelize
+    tasks, such as tiling."
+    :default 50
+    :parse-fn #(Integer/parseInt %)]
+   ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]
+   [nil "--checksum-outfile" "Save the checksums to a particular file."]
+   ])
 
 (defn execute-cql
   "Execute all statements in file specified by path"
@@ -58,7 +67,7 @@
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest dir system)))))
+        (ingest/ingest dir system)))))
 
 (defn cli-make-specs
   "Generate specs from an ESPA archive"
@@ -67,7 +76,7 @@
   (let [paths (-> opts :arguments rest)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (adopt dir system)))))
+        (ingest/adopt dir system)))))
 
 (defn cli-info
   [system config-map]
@@ -82,7 +91,7 @@
         db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
                        :credentials (select-keys (cli-args :options) [:username :password])}}
         env-opts (util/get-config)
-        combined (util/deep-merge env-opts db-opts)
+        combined (util/deep-merge env-opts db-opts {:opts (:options cli-args)})
         system   (component/start (sys/build combined))
         cmd      (-> cli-args :arguments first)]
     (cond (= cmd "exec") (cli-exec-cql system cli-args)
