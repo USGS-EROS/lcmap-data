@@ -32,7 +32,7 @@ Three commands are used to prepare a schema and import data into a Cassandra clu
 Create a keyspace, tile spec table, and tile table.
 
 ```
-lein db run-cql --cql resources/schema.cql --hosts 192.168.33.20
+lein lcmap run-cql --cql resources/schema.cql --hosts 192.168.33.20
 ```
 
 
@@ -45,9 +45,9 @@ Eventually, these will be required command line parameters.
 You must do this once for Landsat 5, 7, and 8 archives.
 
 ```
-lein db load-spec ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
-lein db load-spec ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
-lein db load-spec ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
+lein lcmap load-spec ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
+lein lcmap load-spec ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
+lein lcmap load-spec ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
 ```
 
 Please note: the tile spec code, although good enough for prototyping, assumes
@@ -59,9 +59,9 @@ doesn't have consistency problems.
 ### Ingest Some Data
 
 ```
-lein db ingest ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
-lein db ingest ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
-lein db ingest ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
+lein lcmap ingest ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
+lein lcmap ingest ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
+lein lcmap ingest ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
 ```
 
 Ingesting tiles will gracefully fail if you attempt to ingest data that does not conform

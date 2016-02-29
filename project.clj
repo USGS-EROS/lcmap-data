@@ -18,9 +18,9 @@
                  [clj-gdal "0.2.0"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]]
-  :aliases {"lcmap-db"
+  :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
-            `lein lcmap-db --help`"}
+            `lein lcmap --help`"}
             ^:pass-through-help
             ["run" "-m" "lcmap.data.cli"]}
   :repl-options {:init-ns lcmap.data.dev}
