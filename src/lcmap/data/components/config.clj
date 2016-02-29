@@ -1,4 +1,4 @@
-(ns lcmap-data-clj.components.config
+(ns lcmap.data.components.config
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]))

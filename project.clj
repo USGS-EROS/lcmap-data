@@ -1,4 +1,4 @@
-(defproject  gov.usgs.eros/lcmap-data-clj "0.1.0-SNAPSHOT"
+(defproject  gov.usgs.eros/lcmap-data "0.2.0-dev"
   :description "LCMAP data layer management tools"
   :url "http://github.com/USGS-EROS/lcmap-data-clj"
   :license {:name "NASA Open Source Agreement, Version 1.3"
@@ -18,8 +18,8 @@
                  [clj-gdal "0.2.0"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]]
-  :aliases {"db" ["run" "-m" "lcmap-data-clj.core/cli-main"]}
-  :repl-options {:init-ns lcmap-data-clj.dev}
+  :aliases {"db" ["run" "-m" "lcmap.data.cli"]}
+  :repl-options {:init-ns lcmap.data.dev}
   :test-selectors {:default (complement :integration)
                    :slow    :integration
                    :fast    (complement :integration)
@@ -40,7 +40,7 @@
              :protocol-version 3
              :spec-keyspace "lcmap"
              :spec-table "tile_specs"}
-        :logger [lcmap-data-clj :info
+        :logger [lcmap.dataj :info
                  com.datastax :error
                  co.paralleluniverse :error
                  org.gdal :error]}}})

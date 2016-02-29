@@ -2,13 +2,13 @@
 ;;;;
 ;;;; This namespace simplifies active development by providing easier
 ;;;; ways to init, start, stop system components.
-(ns lcmap-data-clj.dev
-  (:require [lcmap-data-clj.core :as core]
-            [lcmap-data-clj.system :as system]
-            [lcmap-data-clj.ingest :as ingest]
-            [lcmap-data-clj.tile-spec :as tile-spec]
-            [lcmap-data-clj.util :as util]
-            [lcmap-data-clj.espa  :as espa]
+(ns lcmap.data.dev
+  (:require [lcmap.data.core :as core]
+            [lcmap.data.system :as system]
+            [lcmap.data.ingest :as ingest]
+            [lcmap.data.tile-spec :as tile-spec]
+            [lcmap.data.util :as util]
+            [lcmap.data.espa  :as espa]
             [gdal.core :as gc]
             [gdal.dataset :as gd]
             [gdal.band :as gb]
@@ -55,6 +55,6 @@
   []
   (stop)
   (deinit)
-  (refresh :after 'lcmap-data-clj.dev/run))
+  (refresh :after 'lcmap.data.dev/run))
 
 (def reload #'reset)

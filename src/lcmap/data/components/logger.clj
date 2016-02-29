@@ -1,8 +1,8 @@
-(ns lcmap-data-clj.components.logger
+(ns lcmap.data.components.logger
   (:require [clojure.tools.logging :as log]
             [twig.core :as logger]
             [com.stuartsierra.component :as component]
-            [lcmap-data-clj.util :as util]))
+            [lcmap.data.util :as util]))
 
 (defrecord Logger []
   component/Lifecycle

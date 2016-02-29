@@ -6,7 +6,7 @@
 ;;;; 1. CQL Exection: used to load the schema
 ;;;; 2. Save metadata as tile specification.
 ;;;; 2. Save raster data as tiles.
-(ns lcmap-data-clj.core
+(ns lcmap.data.cli
   (:require [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.cql    :as cql]
             [clojure.pprint                 :as pprint]
@@ -16,11 +16,12 @@
             [com.stuartsierra.component     :as component]
             [dire.core                      :refer [with-handler!]]
             [twig.core                      :as twig]
-            [lcmap-data-clj.system          :as sys]
-            [lcmap-data-clj.ingest          :as ingest]
-            [lcmap-data-clj.util            :as util]))
+            [lcmap.data.system              :as sys]
+            [lcmap.data.ingest              :as ingest]
+            [lcmap.data.util                :as util])
+  (:gen-class))
 
-(def cli-option-specs
+(def option-specs
   [["-h" "--hosts HOST1,HOST2,HOST3" "List of hosts"
     :parse-fn #(clojure.string/split % #"[, ]")
     :default (clojure.string/split
@@ -41,7 +42,8 @@
     :default 50
     :parse-fn #(Integer/parseInt %)]
    ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]
-   [nil "--checksum-outfile" "Save the checksums to a particular file."]
+   [nil "--checksum-outfile FILENAME" "Save the checksums to a particular file."
+    :default (str (System/getProperty "java.io.tmpdir") "/ingest-hashes.txt")]
    ])
 
 (defn execute-cql
@@ -53,14 +55,14 @@
     (doseq [stmt (remove empty? statements)]
       (cc/execute conn stmt))))
 
-(defn cli-exec-cql
+(defn exec-cql
   "Executes CQL (useful for creating schema and seeding data)"
   [system opts]
   (log/info "Running command: 'exec'")
   (let [path (-> opts :options :cql)]
     (execute-cql system path)))
 
-(defn cli-make-tiles
+(defn make-tiles
   "Generate tiles from an ESPA archive"
   [system opts]
   (log/info "Running command: 'tile'")
@@ -69,7 +71,7 @@
       (util/with-temp [dir path]
         (ingest/ingest dir system)))))
 
-(defn cli-make-specs
+(defn make-specs
   "Generate specs from an ESPA archive"
   [system opts]
   (log/info "Running command: 'spec'")
@@ -78,31 +80,31 @@
       (util/with-temp [dir path]
         (ingest/adopt dir system)))))
 
-(defn cli-info
+(defn info
   [system config-map]
   (log/info "Running command: 'info'")
   (pprint/pprint config-map))
 
-(defn cli-main
+(defn -main
   "Entry point for command line execution"
   [& args]
-  (twig/set-level! ['lcmap-data-clj] :info)
-  (let [cli-args (cli/parse-opts args cli-option-specs)
+  (twig/set-level! ['lcmap.data] :info)
+  (let [cli-args (cli/parse-opts args option-specs)
         db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
                        :credentials (select-keys (cli-args :options) [:username :password])}}
         env-opts (util/get-config)
         combined (util/deep-merge env-opts db-opts {:opts (:options cli-args)})
         system   (component/start (sys/build combined))
         cmd      (-> cli-args :arguments first)]
-    (cond (= cmd "exec") (cli-exec-cql system cli-args)
-          (= cmd "tile") (cli-make-tiles system cli-args)
-          (= cmd "spec") (cli-make-specs system cli-args)
-          (= cmd "info") (cli-info system combined)
+    (cond (= cmd "exec") (exec-cql system cli-args)
+          (= cmd "tile") (make-tiles system cli-args)
+          (= cmd "spec") (make-specs system cli-args)
+          (= cmd "info") (info system combined)
           :else (log/error "Invalid command:" cmd))
     (component/stop system)
     (System/exit 0)))
 
-(with-handler! #'cli-main
+(with-handler! #'-main
   java.lang.Exception
   (fn [e & args]
     (log/error e)

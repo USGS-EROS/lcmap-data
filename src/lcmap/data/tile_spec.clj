@@ -1,4 +1,4 @@
-(ns lcmap-data-clj.tile-spec
+(ns lcmap.data.tile-spec
   (:require [gdal.dataset :as gd]
             [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.cql :as cql]
@@ -6,7 +6,7 @@
             [clojurewerkz.cassaforte.utils :as cu]
             [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]]
-            [lcmap-data-clj.util :as util]
+            [lcmap.data.util :as util]
             [clojure.tools.logging :as log]
             :reload))
 
