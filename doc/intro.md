@@ -1,3 +1,3 @@
-# Introduction to lcmap-data-clj
+# Introduction to lcmap.data
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

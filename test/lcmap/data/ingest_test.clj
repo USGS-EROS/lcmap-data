@@ -1,7 +1,7 @@
-(ns lcmap-data-clj.ingest-test
+(ns lcmap.data.ingest-test
   (:require [clojure.test :refer :all]
-            [lcmap-data-clj.ingest :refer :all]
-            [lcmap-data-clj.shared-test :as shared]
+            [lcmap.data.ingest :refer :all]
+            [lcmap.data.shared-test :as shared]
             :reload))
 
 ;;; These tests use real ESPA data. The two most important functions

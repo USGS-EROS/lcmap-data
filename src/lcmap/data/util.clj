@@ -6,7 +6,7 @@
 ;;;;
 ;;;; Eventually, these functions may find there way out of
 ;;;; this namespace into a more specific one.
-(ns lcmap-data-clj.util
+(ns lcmap.data.util
   (:require [me.raynes.fs :as fs]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
@@ -85,20 +85,6 @@
         (log/debug "Cleaning up" td#)
         (fs/delete tf#)
         (fs/delete-dir td#)))))
-
-(defn create-temp-file
-  "Create a temporary file object, as with clojure.java.io/file.
-
-  Providing no input will return a File object that points to the file
-  'tempfile' in the operating system's default tempoary directory."
-  ([]
-    (create-temp-file "tempfile"))
-  ([filename]
-    (create-temp-file
-      (System/getProperty "java.io.tmpdir")
-      filename))
-  ([dir filename]
-    (clojure.java.io/file (str dir "/" filename))))
 
 ;;; Projection related utilities
 
