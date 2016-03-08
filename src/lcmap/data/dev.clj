@@ -3,8 +3,7 @@
 ;;;; This namespace simplifies active development by providing easier
 ;;;; ways to init, start, stop system components.
 (ns lcmap.data.dev
-  (:require [lcmap.data.core :as core]
-            [lcmap.data.system :as system]
+  (:require [lcmap.data.system :as system]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.tile-spec :as tile-spec]
             [lcmap.data.util :as util]
