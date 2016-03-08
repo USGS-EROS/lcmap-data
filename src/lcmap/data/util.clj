@@ -6,7 +6,7 @@
 ;;;;
 ;;;; Eventually, these functions may find there way out of
 ;;;; this namespace into a more specific one.
-(ns lcmap-data-clj.util
+(ns lcmap.data.util
   (:require [me.raynes.fs :as fs]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]

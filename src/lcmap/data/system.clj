@@ -1,10 +1,10 @@
-(ns lcmap-data-clj.system
+(ns lcmap.data.system
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
-            [lcmap-data-clj.components.config :as config]
-            [lcmap-data-clj.components.gdal :as gdal]
-            [lcmap-data-clj.components.database :as database]
-            [lcmap-data-clj.components.logger :as logger]))
+            [lcmap.data.components.config :as config]
+            [lcmap.data.components.gdal :as gdal]
+            [lcmap.data.components.database :as database]
+            [lcmap.data.components.logger :as logger]))
 
 (defn build [opts]
   (log/info "Starting system ...")

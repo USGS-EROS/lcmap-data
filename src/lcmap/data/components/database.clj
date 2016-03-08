@@ -1,4 +1,4 @@
-(ns lcmap-data-clj.components.database
+(ns lcmap.data.components.database
   (:require [com.stuartsierra.component :as component]
             [clojurewerkz.cassaforte.client :as client]
             [clojurewerkz.cassaforte.policies :as policies]
