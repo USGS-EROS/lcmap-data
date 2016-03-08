@@ -1,4 +1,4 @@
-(ns lcmap-data-clj.espa
+(ns lcmap.data.espa
   (:require [clojure.java.io :as io]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
