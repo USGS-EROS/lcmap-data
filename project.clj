@@ -44,7 +44,9 @@
              :port 9042
              :protocol-version 3
              :spec-keyspace "lcmap"
-             :spec-table "tile_specs"}
+             :spec-table "tile_specs"
+             :ingest-keyspace "lcmap"
+             :ingest-table "conus"}
         :logger [lcmap.dataj :info
                  com.datastax :error
                  co.paralleluniverse :error
