@@ -47,7 +47,7 @@
    ["-f" "--file PATH_TO_CQL" ""
     :default "resources/schema.cql"]
    ["-s" "--tile-size x:y"
-    (str "Colon-separated pixel values for width:height shape of tiles "
+    (str "Colon-separated pixel values for the width:height shape of tiles "
          "to create during ingest.")
     :default [256 256]
     :parse-fn parse-shape]

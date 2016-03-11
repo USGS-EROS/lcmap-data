@@ -322,8 +322,8 @@
   "Save ESPA metadata as tile specs"
   [path system]
   (let [[shape-x shape-y] (get-in system [:config :opts :tile-size])
-        base-spec {:keyspace-name "lcmap"
-                   :table-name    "conus"
+        base-spec {:keyspace-name (get-in system [:config :db :ingest-keyspace])
+                   :table-name    (get-in system [:config :db :ingest-table])
                    :tile-x        (* shape-x 30)
                    :tile-y        (* shape-y -30)
                    :data-shape    [shape-x shape-y]}]
