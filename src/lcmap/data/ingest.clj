@@ -321,11 +321,12 @@
 (defn adopt
   "Save ESPA metadata as tile specs"
   [path system]
-  (let [base-spec {:keyspace-name "lcmap"
+  (let [[shape-x shape-y] (get-in system [:config :opts :tile-size])
+        base-spec {:keyspace-name "lcmap"
                    :table-name    "conus"
-                   :tile-x        (* 256 30)
-                   :tile-y        (* 256 -30)
-                   :data-shape    [256 256]}]
+                   :tile-x        (* shape-x 30)
+                   :tile-y        (* shape-y -30)
+                   :data-shape    [shape-x shape-y]}]
     (log/info "Adopting all bands as a tile spec" (.getAbsolutePath path))
     (doseq [band (get-bands system path)
             :let [band-ubid {:ubid (get-ubid band)}

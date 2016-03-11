@@ -22,6 +22,14 @@
             [lcmap.data.util :as util])
   (:gen-class))
 
+(defn parse-int [x]
+  (Integer/parseInt x))
+
+(defn parse-shape [shape]
+  (->> shape
+       (#(clojure.string/split % #":"))
+       (map parse-int)))
+
 (def option-specs
   [["-h" "--help"]
    ["-H" "--hosts HOST1,HOST2,HOST3" "List of hosts"
@@ -38,10 +46,15 @@
     :default (System/getenv "LCMAP_SPEC_TABLE")]
    ["-f" "--file PATH_TO_CQL" ""
     :default "resources/schema.cql"]
+   ["-s" "--tile-size x:y"
+    (str "Colon-separated pixel values for width:height shape of tiles "
+         "to create during ingest.")
+    :default [256 256]
+    :parse-fn parse-shape]
    ["-b" "--batch-size n"
     "The number of tiles to process at a time."
     :default (or (System/getenv "LCMAP_SPEC_TABLE") 50)
-    :parse-fn #(Integer/parseInt %)]
+    :parse-fn parse-int]
    ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]
    [nil "--checksum-outfile FILENAME" "Save the checksums to a particular file."
     :default (str (System/getProperty "java.io.tmpdir") "/ingest-hashes.txt")]
@@ -91,7 +104,7 @@
 (defn usage [options-summary]
   (->> ["The command line interface for lcmap.data."
         ""
-        "Usage: lein lcmap-data [options] command"
+        "Usage: lein lcmap [options] command"
         ""
         "Options:"
         options-summary
