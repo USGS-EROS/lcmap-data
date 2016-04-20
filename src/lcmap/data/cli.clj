@@ -1,11 +1,3 @@
-;;;; LCMAP Data core namespace
-;;;;
-;;;; This namespace defines the command line behaviors provided by this
-;;;; library. It provides two functions invoked via Leiningen.
-;;;;
-;;;; 1. CQL Exection: used to load the schema
-;;;; 2. Save metadata as tile specification.
-;;;; 2. Save raster data as tiles.
 (ns lcmap.data.cli
   (:require [clojure.java.io :as io]
             [clojure.pprint :as pprint]
@@ -19,6 +11,7 @@
             [twig.core :as twig]
             [lcmap.data.system :as sys]
             [lcmap.data.ingest :as ingest]
+            [lcmap.data.adopt :as adopt]
             [lcmap.data.util :as util])
   (:gen-class))
 
@@ -44,20 +37,22 @@
     :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
    ["-t" "--spec-table SPEC_TABLE" ""
     :default (System/getenv "LCMAP_SPEC_TABLE")]
-   ["-f" "--file PATH_TO_CQL" ""
-    :default "resources/schema.cql"]
-   ["-s" "--tile-size x:y"
+   [nil "--tile-table TILE_TABLE"
+    :default (System/getenv "LCMAP_TILE_TABLE")]
+   [nil "--tile-keyspace TILE_KEYSPACE"
+    :default (System/getenv "LCMAP_TILE_KEYSPACE")]
+   [nil "--tile-size x:y"
     (str "Colon-separated pixel values for the width:height shape of tiles "
          "to create during ingest.")
     :default [256 256]
     :parse-fn parse-shape]
+   ;; XXX load default from proper env variable? parse string?
    ["-b" "--batch-size n"
-    "The number of tiles to process at a time."
-    :default (or (System/getenv "LCMAP_SPEC_TABLE") 50)
+    "The number of tiles to process at a time. Placeholder, not used."
+    :default (or (System/getenv "LCMAP_BATCH_SIZE") 50)
     :parse-fn parse-int]
-   ["-m" "--checksum-ingest" "Perform checksum on ingested tiles?"]
-   [nil "--checksum-outfile FILENAME" "Save the checksums to a particular file."
-    :default (str (System/getProperty "java.io.tmpdir") "/ingest-hashes.txt")]
+   [nil "--file PATH_TO_CQL" ""
+    :default "resources/schema.cql"]
    ])
 
 (defn execute-cql
@@ -73,26 +68,29 @@
   "Executes CQL (useful for creating schema and seeding data)"
   [cmd system opts]
   (log/infof "Running command: '%s'" cmd)
-  (let [path (-> opts :options :cql)]
+  (let [path (-> opts :options :file)]
     (execute-cql system path)))
 
 (defn make-tiles
   "Generate tiles from an ESPA archive"
   [cmd system opts]
   (log/infof "Running command: '%s'" cmd)
-  (let [paths (-> opts :arguments rest)]
+  (let [paths (-> opts :arguments rest)
+        db    (-> system :database)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest/ingest dir system)))))
+        (ingest/process-scene db dir)))))
 
 (defn make-specs
   "Generate specs from an ESPA archive"
   [cmd system opts]
   (log/infof "Running command: '%s'" cmd)
-  (let [paths (-> opts :arguments rest)]
+  (let [paths (-> opts :arguments rest)
+        args  (:options opts)
+        db    (-> system :database)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest/adopt dir system)))))
+        (adopt/process-scene db dir args)))))
 
 (defn show-info
   [config-map]

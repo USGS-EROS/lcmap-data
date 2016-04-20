@@ -32,7 +32,7 @@ Three commands are used to prepare a schema and import data into a Cassandra clu
 Create a keyspace, tile spec table, and tile table.
 
 ```
-lein lcmap run-cql --cql resources/schema.cql --hosts 192.168.33.20
+lein lcmap run-cql --file resources/schema.cql --hosts 192.168.33.20
 ```
 
 
@@ -48,6 +48,16 @@ You must do this once for Landsat 5, 7, and 8 archives.
 lein lcmap load-spec ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
 lein lcmap load-spec ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
 lein lcmap load-spec ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
+```
+
+Provide keyspace, table, and tile size that overrides defaults.
+
+```
+lein lcmap load-spec ~/Downloads/LC80460272013104-SC20151208193402.tar.gz \
+  --hosts 192.168.1.21  \
+  --tile-keyspace lcmap \
+  --tile-table conus_32 \
+  --tile-size 32:32
 ```
 
 Please note: the tile spec code, although good enough for prototyping, assumes

@@ -1,10 +1,7 @@
-;;;; LCMAP Data development namespace
-;;;;
-;;;; This namespace simplifies active development by providing easier
-;;;; ways to init, start, stop system components.
 (ns lcmap.data.dev
   (:require [lcmap.data.system :as system]
             [lcmap.data.ingest :as ingest]
+            [lcmap.data.tile :as tile]
             [lcmap.data.tile-spec :as tile-spec]
             [lcmap.data.util :as util]
             [lcmap.data.espa  :as espa]
@@ -21,27 +18,27 @@
             [com.stuartsierra.component :as component]
             [leiningen.core.project :as lein-prj]))
 
-(def the-system nil)
+(def sys nil)
 
 (defn init
   "Prepare the system without starting it"
   []
-  (alter-var-root #'the-system #(when-not % (system/build (util/get-config)))))
+  (alter-var-root #'sys #(when-not % (system/build (util/get-config)))))
 
 (defn start
   "Start the system (if it exists)"
   []
-  (alter-var-root #'the-system #(when % (component/start %))))
+  (alter-var-root #'sys #(when % (component/start %))))
 
 (defn stop
   "Stop the system (if it exists)"
   []
-  (alter-var-root #'the-system #(when % (component/stop %))))
+  (alter-var-root #'sys #(when % (component/stop %))))
 
 (defn deinit
   "Forget the system map"
   []
-  (alter-var-root #'the-system (fn [_] nil)))
+  (alter-var-root #'sys (fn [_] nil)))
 
 (defn run
   "init -> start"

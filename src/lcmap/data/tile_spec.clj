@@ -1,52 +1,72 @@
 (ns lcmap.data.tile-spec
-  (:require [gdal.dataset :as gd]
-            [clojurewerkz.cassaforte.client :as cc]
-            [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :as cq]
-            [clojurewerkz.cassaforte.utils :as cu]
-            [camel-snake-kebab.core :refer :all]
-            [camel-snake-kebab.extras :refer [transform-keys]]
-            [lcmap.data.util :as util]
+  (:require [clojurewerkz.cassaforte.cql :as cql]
+            [clojurewerkz.cassaforte.query :as query]
             [clojure.tools.logging :as log]
-            :reload))
+            [gdal.core]
+            [gdal.dataset]
+            :reload)
+  (:refer-clojure :exclude [find]))
 
-(defn validate
-  "Ensure a tile-spec values meet basic criteria."
-  ([spec]
-   (let [rules {:keyspace-name  string?
-                :table-name     string?
-                :projection     string?
-                :tile-x         (every-pred integer? pos?)   ; number of pixels wide
-                :tile-y         (every-pred integer? pos?)   ; number of pixels tall
-                :pixel-x        number?                      ; west-east in projection units
-                :pixel-y        number?                      ; north-south in projection units
-                :shift-x        number?                      ; west-east offset in proj. units
-                :shift-y        number?                      ; north-south offset in proj. units
-                :bands          (partial every? :ubid)}]     ; list of maps containing :ubid
-   (validate spec rules)))
-  ([spec rules]
-   (remove nil? (for [[field rule] rules]
-                  (if-not (rule (spec field))
-                    {field :invalid})))))
+(defn column-names
+  "Retrieve names of tile-spec columns"
+  [db]
+  (let [session       (get-in db [:session])
+        spec-keyspace (get-in db [:config :db :spec-keyspace])
+        spec-table    (get-in db [:config :db :spec-table])
+        columns       (cql/describe-columns session spec-keyspace spec-table)]
+    (->> columns
+         (map :column_name)
+         (map keyword)
+         (into []))))
 
-(defn find-spec
+(defn find
   "Retrieve a tile spec for given band"
-  [band system]
-  (let [session  (-> system :database :session)
-        spec-keyspace (-> system :config :db :spec-keyspace)
-        spec-table    (-> system :config :db :spec-table)
-        params   (cq/where (transform-keys ->snake_case band))
-        results  (cql/select session spec-table params (cq/allow-filtering))]
-    (log/debug "Find bands" band)
-    (map #(transform-keys (util/ifa keyword? ->kebab-case) %) results)))
+  [db params]
+  (let [session       (get-in db [:session])
+        spec-keyspace (get-in db [:config :db :spec-keyspace])
+        spec-table    (get-in db [:config :db :spec-table])]
+    (log/debugf "Find tile-spec: %s" params)
+    (cql/use-keyspace session spec-keyspace)
+    (cql/select session spec-table
+                (query/where params)
+                (query/allow-filtering))))
 
 (defn save
-  "Insert a tile-spec into the tile_specs table"
-  [tile-spec system]
-  (let [session (-> system :database :session)
-        spec-keyspace (-> system :config :db :spec-keyspace)
-        spec-table (-> system :config :db :spec-table)
-        maybe-snake (util/ifa keyword? ->snake_case)
-        spec-snaked (transform-keys maybe-snake tile-spec)]
-    (log/debug "Save tile-spec" spec-snaked)
-    (cql/insert session spec-table spec-snaked)))
+  "Insert a tile-spec"
+  [db tile-spec]
+  (log/debugf "Save tile-spec: %s" tile-spec)
+  (let [session       (get-in db [:session])
+        spec-keyspace (get-in db [:config :db :spec-keyspace])
+        spec-table    (get-in db [:config :db :spec-table])
+        params        (select-keys tile-spec (column-names db))]
+      (cql/use-keyspace session spec-keyspace)
+      (cql/insert session spec-table params)))
+
+(defn band->spec
+  "Take tile-spec properties from a band"
+  [band db]
+  (let [cs (column-names db)
+        ks (map keyword cs)]
+    (select-keys band ks)))
+
+(defn dataset->spec
+  "Deduce tile spec properties from band's dataset at file_path and band's data_shape"
+  [path shape]
+  (let []
+    (gdal.core/with-dataset [ds path]
+      (let [proj (gdal.dataset/get-projection-str ds)
+            [rx px _ ry _ py] (gdal.dataset/get-geo-transform ds)
+            [dx dy] shape
+            pixel_x (int px)
+            pixel_y (int py)
+            tile_x  (int (* px dx))
+            tile_y  (int (* py dy))
+            shift_x (int (mod rx pixel_x))
+            shift_y (int (mod ry pixel_y))]
+        {:projection proj
+         :pixel_x pixel_x
+         :pixel_y pixel_y
+         :tile_x tile_x
+         :tile_y tile_x
+         :shift_x shift_x
+         :shift_y shift_y}))))

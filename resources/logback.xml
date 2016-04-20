@@ -1,0 +1,35 @@
+<configuration debug="true">
+
+  <timestamp key="now" datePattern="yyyyMMdd-HHmmss"/>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%green(%date{ISO8601}) %cyan([%.-20thread]) %highlight(%-5level) %yellow(%logger{30}) - %green(%msg) %n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="CHECKSUM" class="ch.qos.logback.core.FileAppender">
+    <file>logs/lcmap-checksum-${now}.log</file>
+    <append>false</append>
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator>
+        <matcher>
+          <name>checksum</name>
+          <regex>^checksum</regex>
+        </matcher>
+        <expression>checksum.matches(formattedMessage)</expression>
+      </evaluator>
+      <OnMismatch>DENY</OnMismatch>
+      <OnMatch>NEUTRAL</OnMatch>
+    </filter>
+    <encoder>
+      <pattern>%msg %n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="CHECKSUM" />
+  </root>
+
+</configuration>

@@ -35,7 +35,7 @@
      :provider     (xml1-> gmzip :data_provider text)
      :acquired     (xml1-> gmzip :acquisition_date text)
      :source       (-> gmzip lpgs-path source-scene)
-     :solar-angles (solar-angles->map gmzip)}))
+     :solar_angles (solar-angles->map gmzip)}))
 
 (defn data-range->list
   "Convert a valid_range element into a list"
@@ -56,19 +56,19 @@
   "Convert all band elements into a list of maps"
   [root]
   (for [band (xml-> root :bands :band)
-        :let [props {:file-name  (xml1-> band :file_name text)
-                     :band-short-name (xml1-> band :short_name text)
-                     :band-long-name  (xml1-> band :long_name text)
-                     :band-category   (attr band :category)
-                     :band-product    (attr band :product)
-                     :band-name       (attr band :name)
-                     :data-type  (attr band :data_type)
-                     :data-fill  (some-> (attr band :fill_value) Short/parseShort)
-                     :data-scale (some-> (attr band :scale_factor) Double/parseDouble)
-                     :data-range (map #(if (some? %) (Integer/parseInt %))
+        :let [props {:file_name  (xml1-> band :file_name text)
+                     :band_short_name (xml1-> band :short_name text)
+                     :band_long_name  (xml1-> band :long_name text)
+                     :band_category   (attr band :category)
+                     :band_product    (attr band :product)
+                     :band_name       (attr band :name)
+                     :data_type  (attr band :data_type)
+                     :data_fill  (some-> (attr band :fill_value) Short/parseShort)
+                     :data_scale (some-> (attr band :scale_factor) Double/parseDouble)
+                     :data_range (map #(if (some? %) (Integer/parseInt %))
                                       (data-range->list band))
-                     :data-units (attr band :data_units)
-                     :data-mask  (mask-values->map band)}]]
+                     :data_units (attr band :data_units)
+                     :data_mask  (mask-values->map band)}]]
        props))
 
 (defn parse-metadata

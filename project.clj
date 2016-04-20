@@ -3,21 +3,25 @@
   :url "http://github.com/USGS-EROS/lcmap-data-clj"
   :license {:name "NASA Open Source Agreement, Version 1.3"
             :url "http://ti.arc.nasa.gov/opensource/nosa/"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/core.memoize "0.5.8"]
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
                  [org.clojure/tools.cli "0.3.3"]
+                 ;; logging
                  [twig "0.1.4"]
+                 [janino "2.5.10"]
+                 ;; error handling
                  [dire "0.5.4"]
-                 [clojurewerkz/cassaforte "2.0.0"]
+                 ;; cassandra / db deps
+                 [clojurewerkz/cassaforte "2.0.2"]
                  [net.jpountz.lz4/lz4 "1.3.0"]
                  [org.xerial.snappy/snappy-java "1.1.2"]
-                 [camel-snake-kebab "0.3.2"]
+                 ;; file system utils
                  [me.raynes/fs "1.4.6"]
-                 [clj-gdal "0.2.0"]
                  [com.stuartsierra/component "0.3.1"]
-                 [leiningen-core "2.5.3"]]
+                 [leiningen-core "2.5.3"]
+                 [clj-gdal "0.2.0"]]
   :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
             `lein lcmap --help`"}
@@ -42,12 +46,10 @@
         ;; LCMAP_HOSTS, LCMAP_USER, LCMAP_PASS
         :db {:hosts []
              :port 9042
-             :protocol-version 3
+             :protocol-version 2
              :spec-keyspace "lcmap"
-             :spec-table "tile_specs"
-             :ingest-keyspace "lcmap"
-             :ingest-table "conus"}
-        :logger [lcmap.dataj :info
+             :spec-table "tile_specs"}
+        :logger [lcmap.data :info
                  com.datastax :error
                  co.paralleluniverse :error
                  org.gdal :error]}}})

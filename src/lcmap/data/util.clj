@@ -109,22 +109,28 @@
 
 (defn get-proj-from-image
   "Build a SpatialReference for a GDAL dataset"
-  [image]
-  (let [proj (new SpatialReference (gd/get-projection-str image))]
+  [dataset]
+  (let [proj (new SpatialReference (gd/get-projection-str dataset))]
     proj))
 
-(defn get-spec-from-image
+(defn get-gdal-meta-map
   "Generate a tile-spec like map for an image."
-  [image]
-  (let [[ux sx _ uy _ sy] (gd/get-geo-transform image)
-        projection (gd/get-projection-str image)]
-    {:upper-x ux
-     :upper-y uy
-     :pixel-x sx
-     :pixel-y sy
-     :shift-x (mod ux sx)
-     :shift-y (mod uy sy)
+  [dataset]
+  (let [[ux sx _ uy _ sy] (gd/get-geo-transform dataset)
+        projection (gd/get-projection-str dataset)]
+    {:upper_x ux
+     :upper_y uy
+     :pixel_x sx
+     :pixel_y sy
+     :shift_x (mod ux sx)
+     :shift_y (mod uy sy)
      :projection projection}))
+
+(defn get-ubid-map
+  ""
+  [band]
+  {:ubid (apply str (interpose "/" ((juxt :satellite :instrument :band_name) band)))})
+
 
 (defn same-projection?
   "Compare two projections for equivalence"
