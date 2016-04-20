@@ -1,4 +1,6 @@
 (ns lcmap.data.ingest
+  "Funtions related to the creation of tiles from ESPA XML metadata and
+   associated rasters (e.g. GDAL datasets)"
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clojure.core.memoize]
@@ -13,31 +15,37 @@
             :reload))
 
 (defn +ubid
-  "Make a UBID and add it to the band"
+  "Make a UBID and add it to the band."
   [band]
   (let [vals ((juxt :satellite :instrument :band_name) band)
         ubid (clojure.string/join "/" vals)]
     (assoc band :ubid ubid)))
 
 (defn +path
-  "Add absolute path to raster for band"
+  "Add absolute path to raster for band."
   [scene band]
   (assoc band :path (.getAbsolutePath (io/file scene (:file_name band)))))
 
 (defn +spec
-  "Make a spec and add it to the band"
+  "Retrieve a spec (for the given UBID) and add it to the band. This assumes
+   only one tile-spec will be found. If multiple tile-specs exists, behavior
+   is undefined."
+  ;; XXX In the future, we will support multiple areas of interest, regions
+  ;;     that are projected differently (CONUS, Alaska, Hawaii). Once we get
+  ;;     to that point, we will use the scene's projection as an additional
+  ;;     parameter to select the tile-spec.
   [db band]
   (merge band (first (tile-spec/find db (select-keys band [= :ubid (:ubid band)])))))
 
 (defn- int16-fill
-  ""
+  "Produce a buffer used to detect INT16 type buffers containing all fill data."
   [data-size data-fill]
   (let [buffer (java.nio.ShortBuffer/allocate data-size)
         backer (.array buffer)]
     (java.util.Arrays/fill backer (short data-fill))))
 
 (defn- uint8-fill
-  ""
+  "PLACEHOLDER. Produce a buffer used to detect UINT8 type buffers all fill data."
   [data-size data-fill]
   ;; XXX This hasn't been implemented yet because it's not strictly
   ;;     necessary at this point. If a band doesn't have a fill buffer
@@ -57,7 +65,7 @@
 (defn +fill
   "Make a fill buffer used to detect no-data tiles"
   [band]
-  (log/debug "add fill to band ...")
+  (log/debug "add fill buffer to band ...")
   (assoc band :fill (fill-buffer (apply * (band :data_shape))
                                  (band :data_fill)
                                  (band :data_type))))
@@ -88,17 +96,19 @@
           (assoc tile :proj-x tx :proj-y ty))))))
 
 (defn +locate
-  "Make a raster to projection point transformer function"
-  [band]  
+  "Make a raster to projection point transformer function."
+  [band]
   (assoc band :locate-fn (locate-fn band)))
 
 (defn locate
-  "Use band's locator to turn a raster point to projection point"
+  "Use band's locator to turn a raster point to projection point."
   [tile]
   ((:locate-fn tile) tile))
 
 (defn conforms?
-  "Does the referenced raster match the band spec"
+  "PLACHOLER. True if the referenced raster matches the band's tile-spec.
+   This ensures the raster is the same projection and that the boundaries
+   precisely align to the tile-specs grid values."
   [band]
   ;; XXX This is a safety net that we don't need at the moment;
   ;;     we can guarantee the dimensions of ESPA outputs. In order
@@ -116,13 +126,18 @@
     (str (md5/md5 char-data))))
 
 (defn checksum
-  "Produce a checksum for tile data"
+  "Produce a checksum for tile data. Useful for building a secondary inventory
+   of ingested data and verifying multiple runs produce the same tile data.
+   This relies on configuring underlying logging (currently); see resources/logback.xml
+   for details."
   [tile]
   (log/debug "checksum" (:ubid tile) (:proj-x tile) (:proj-y tile) (:acquired tile) (:source tile) (get-hash tile))
   tile)
 
 (defn save
-  "Save a tile"
+  "Save a tile. This function should be used for all saving that needs
+   to happen (in batch) when processing a tile. Currently, this only
+   inserts tile data, but it will soon update a scene inventory too."
   [db tile]
   (let [params (-> tile
                    (select-keys [:ubid :proj-x :proj-y :acquired :source :data])
@@ -135,13 +150,13 @@
 ;;; tile producing functions
 
 (defn scene->bands
-  "Create sequence of from ESPA XML metadata"
+  "Create sequence of from ESPA XML metadata."
   [path band-xf]
   (log/debug "producing bands for scene ...")
   (sequence band-xf (espa/load-metadata path)))
 
 (defn dataset->tiles
-  "Create sequence of tile from dataset referenced by band"
+  "Create sequence of tile from dataset referenced by band."
   [tile-xf dataset x-step y-step]
   (log/debug "producing tiles for dataset ...")
   (let [image (gdal.dataset/get-band dataset 1)
@@ -160,7 +175,7 @@
   tile)
 
 (defn process-band
-  "Saves band as tiles"
+  "Saves band as tiles."
   [db band]
   ;; Tiles must be saved within the context of dataset or else the
   ;; data buffer will reference a byte buffer that cannot be read!

@@ -1,4 +1,5 @@
 (ns lcmap.data.espa
+  "Functions related to turning ESPA XML metadata into a list of bands."
   (:require [clojure.java.io :as io]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
@@ -6,7 +7,7 @@
             [clojure.tools.logging :as log]))
 
 (defn solar-angles->map
-  "Convert a solar_angles element to a map"
+  "Convert a solar_angles element to a map."
   [global]
   (let [sazip (xml1-> global :solar_angles)
         to-double #(if (some? %) (java.lang.Double/parseDouble %))
@@ -16,18 +17,18 @@
     props))
 
 (defn lpgs-path
-  "Retrieve path to LPGS metadata file"
+  "Retrieve path to LPGS metadata file."
   [global]
   (let [path (xml1-> global :lpgs_metadata_file text)]
     path))
 
 (defn source-scene
-  "Extract implicit scene ID from relative LPGS metadata file path"
+  "Extract implicit scene ID from relative LPGS metadata file path."
   [lpgs-path]
   (re-find #"[A-Z0-9]+" lpgs-path))
 
 (defn global->map
-  "Convert a global_metadata element to a map"
+  "Convert a global_metadata element to a map."
   [root]
   (let [gmzip (xml1-> root :global_metadata)]
     {:satellite    (xml1-> gmzip :satellite text)
@@ -38,14 +39,14 @@
      :solar_angles (solar-angles->map gmzip)}))
 
 (defn data-range->list
-  "Convert a valid_range element into a list"
+  "Convert a valid_range element into a list."
   [band]
   (if-let [element (xml1-> band :valid_range)]
     [(attr element :min)
      (attr element :max)]))
 
 (defn mask-values->map
-  "Convert a class_values element into a map"
+  "Convert a class_values element into a map."
   [band]
   (if-let [items (concat (xml-> band :class_values :class)
                          (xml-> band :bitmap_description :bit))]
@@ -53,7 +54,7 @@
                [(Integer/parseInt (attr item :num)) (text item)]))))
 
 (defn bands->list
-  "Convert all band elements into a list of maps"
+  "Convert all band elements into a list of maps."
   [root]
   (for [band (xml-> root :bands :band)
         :let [props {:file_name  (xml1-> band :file_name text)
@@ -72,7 +73,7 @@
        props))
 
 (defn parse-metadata
-  "Create a map from ESPA archive XML metadata"
+  "Create a map from ESPA archive XML metadata."
   [path]
   (log/debug "Parsing metadata file:" path)
   (let [data   (xml/parse path)
@@ -94,7 +95,7 @@
     (first xml)))
 
 (defn load-metadata
-  "Find and parse metadata at path (a directory)"
+  "Find and parse metadata at path (a directory)."
   [path]
   (let [xml-path (find-metadata path)
         xml-data (parse-metadata xml-path)]

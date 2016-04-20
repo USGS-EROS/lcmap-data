@@ -1,4 +1,6 @@
 (ns lcmap.data.tile
+  "Functions for retrieving tiles from the DB or producing tiles from
+  a band of GDAL data."
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :as query]
             [clojure.tools.logging :as log]
@@ -20,10 +22,11 @@
     [(int tx) (int ty)]))
 
 (defn find
-  "Query DB for all tiles that match the UBID and contain (x,y)"
-  [ubid x y acquired system]
-  (let [spec     (first (tile-spec/find ubid system))
-        session  (get-in system [:database :session])
+  "Query DB for all tiles that match the UBID, contain (x,y), and
+   were acquired during a certain period of time."
+  [ubid x y acquired db]
+  (let [spec     (first (tile-spec/find ubid db))
+        session  (get-in db [:session])
         keyspace (:keyspace_name spec)
         table    (:table_name spec)
         [tx ty]  (snap x y spec)
@@ -37,7 +40,7 @@
     (cql/select session table where)))
 
 (defn save
-  "Insert tile data"
+  "Insert tile data (asynchronously)."
   [db keyspace table tile]
   (log/debug "save tile" tile)
   (let [session (get-in db [:session])]
@@ -51,9 +54,9 @@
 
 (defprotocol Tiled
   ""
-  (shape [data] "Dimensions [cols rows] of data")
-  (steps [data step-x step-y] "Subsetting coordinates within data")
-  (tiles [data step-x step-y] "List of maps with x, y, data"))
+  (shape [data] "Dimensions [cols rows] of data.")
+  (steps [data step-x step-y] "Subsetting coordinates within data.")
+  (tiles [data step-x step-y] "List of maps with x, y, data."))
 
 (extend-type org.gdal.gdal.Band
   Tiled

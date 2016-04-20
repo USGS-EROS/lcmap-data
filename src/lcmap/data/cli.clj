@@ -1,4 +1,5 @@
 (ns lcmap.data.cli
+  "Provide command-line interface to tile and tile-spec features."
   (:require [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.string :as string]
@@ -15,10 +16,14 @@
             [lcmap.data.util :as util])
   (:gen-class))
 
-(defn parse-int [x]
+(defn parse-int
+  "Helper function"
+  [x]
   (Integer/parseInt x))
 
-(defn parse-shape [shape]
+(defn parse-shape
+  "Helper function to convert data-shape param into list of numbers"
+  [shape]
   (->> shape
        (#(clojure.string/split % #":"))
        (map parse-int)))
@@ -93,13 +98,16 @@
         (adopt/process-scene db dir args)))))
 
 (defn show-info
+  "Display combined cli options, environment, and profile values"
   [config-map]
   (log/info "Running command: 'info'")
   (println "lcmap.data information:\n")
   (pprint/pprint config-map))
 
 
-(defn usage [options-summary]
+(defn usage
+  "Produce help text"
+  [options-summary]
   (->> ["The command line interface for lcmap.data."
         ""
         "Usage: lein lcmap [options] command"
@@ -122,7 +130,7 @@
     (exit status)))
 
 (defn run
-  ""
+  "Init system and invoke function for user specified command"
   [cli-args combined-cfg]
   (twig/set-level! ['lcmap.data] :info)
   (let [cmd (-> cli-args :arguments first)

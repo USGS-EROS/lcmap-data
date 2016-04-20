@@ -1,4 +1,13 @@
 (ns lcmap.data.system
+  "Ingest requires a handful of components in order to produce tiles and
+   tile-specs.
+
+   - config holds environment, profile, and command line options.
+   - logger enables and adjusts log levels.
+   - gdal provides access to raster data.
+   - database maintains a session used to store and retrieve tiles
+     and tile-specs.
+  "
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
             [lcmap.data.components.config :as config]

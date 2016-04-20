@@ -1,24 +1,33 @@
 (ns lcmap.data.adopt
+  "Functions supporting the creation of tile-specs from ESPA XML metadata
+   and associated rasters (e.g. GDAL datasets)."
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [lcmap.data.espa :as espa]
             [lcmap.data.tile-spec :as tile-spec]))
+
+;; These functions are implemented in their own namespace instead of
+;; lcmap.data.tile-spec because they bridge the gap between ESPA XML
+;; metadata and tile-specs.
 
 (defn scene->bands
   "Turn scene at path into a sequence of bands."
   [band-xf path]
   (sequence band-xf (espa/load-metadata path)))
 
-;; Transform functions, names with a "+" prefix should add a new
-;; key to the given band.
+;; Transform functions have a "+" prefix to imply that they assoc a
+;; value with the last argument. These functions are intended to be
+;; used with transducers; composed together to transform (or filter)
+;; a set of bands into tile-specs.
 
 (defn +path
-  "Add absolute path to raster for band."
+  "Add absolute path to raster for band. ESPA XML contains a relative
+   path to the raster."
   [scene band]
   (assoc band :path (.getAbsolutePath (io/file scene (:file_name band)))))
 
 (defn +ubid
-  "Derive UBID from other band properties"
+  "Derive UBID from other band properties."
   [band]
   (let [vs ((juxt :satellite :instrument :band_name) band)]
     (assoc band :ubid (clojure.string/join "/" vs))))
@@ -34,7 +43,7 @@
            :table_name tile-table)))
 
 (defn +spec
-  "Add tile-spec properties to band. Band must have :file_path key referencing 
+  "Add tile-spec properties to band. Band must have :path key referencing 
   dataset."
   [band]
   (merge band (tile-spec/dataset->spec (:path band)
@@ -48,9 +57,10 @@
 (defn process-scene
   "Produce tile-specs for all bands in scene"
   [db path opts]
-  (log/debug "Adopting" path "with" opts)
+  (log/info "Adopting" path "with" opts)
   (let [band-xf (comp (map (partial +path path))
                       (map (partial +opts opts))
                       (map +ubid)
                       (map +spec))]
+    ;; dorun is needed to realize the sequence
     (dorun (map #(save db %) (scene->bands band-xf path)))))

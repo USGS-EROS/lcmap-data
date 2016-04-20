@@ -7,6 +7,8 @@
 (defrecord Database []
   component/Lifecycle
   (start [component]
+    ;; XXX Add support for credentials.
+    ;; XXX Add support for retry policies.
     (log/info "Starting DB component ...")
     (let [db-cfg   (-> component :config :db)
           hosts    (:hosts db-cfg)

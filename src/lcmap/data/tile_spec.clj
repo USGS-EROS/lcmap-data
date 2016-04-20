@@ -1,4 +1,5 @@
 (ns lcmap.data.tile-spec
+  "Functions for retrieving and creating tile-specs."
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :as query]
             [clojure.tools.logging :as log]
@@ -8,7 +9,9 @@
   (:refer-clojure :exclude [find]))
 
 (defn column-names
-  "Retrieve names of tile-spec columns"
+  "Retrieve names of tile-spec columns. Useful for providing a list of values
+   from a map that need to be persisted. Cassaforte does not ignore key/values
+   when inserting data (quite reasonably)."
   [db]
   (let [session       (get-in db [:session])
         spec-keyspace (get-in db [:config :db :spec-keyspace])
@@ -20,11 +23,13 @@
          (into []))))
 
 (defn find
-  "Retrieve a tile spec for given band"
+  "Retrieve a tile spec for given band."
   [db params]
   (let [session       (get-in db [:session])
         spec-keyspace (get-in db [:config :db :spec-keyspace])
         spec-table    (get-in db [:config :db :spec-table])]
+    ;; XXX save ignores param keys that do not correspond to
+    ;;     a column, should find do the same?
     (log/debugf "Find tile-spec: %s" params)
     (cql/use-keyspace session spec-keyspace)
     (cql/select session spec-table
@@ -32,7 +37,8 @@
                 (query/allow-filtering))))
 
 (defn save
-  "Insert a tile-spec"
+  "Insert a tile-spec. Ignores key/values that do not correspond
+   to a tile-spec table column."
   [db tile-spec]
   (log/debugf "Save tile-spec: %s" tile-spec)
   (let [session       (get-in db [:session])
@@ -43,8 +49,8 @@
       (cql/insert session spec-table params)))
 
 (defn band->spec
-  "Take tile-spec properties from a band"
-  [band db]
+  "Take tile-spec properties from a band."
+  [db band]
   (let [cs (column-names db)
         ks (map keyword cs)]
     (select-keys band ks)))
@@ -52,7 +58,7 @@
 (defn dataset->spec
   "Deduce tile spec properties from band's dataset at file_path and band's data_shape"
   [path shape]
-  (let []
+  (let [] ;; XXX huh?
     (gdal.core/with-dataset [ds path]
       (let [proj (gdal.dataset/get-projection-str ds)
             [rx px _ ry _ py] (gdal.dataset/get-geo-transform ds)

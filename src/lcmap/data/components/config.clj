@@ -1,4 +1,5 @@
 (ns lcmap.data.components.config
+  "Config contains environment, profile, and command line parameter values."
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]))
