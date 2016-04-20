@@ -26,7 +26,6 @@ point, and to reconstiture blobs of data into a meaningful type of data.
 
 Three commands are used to prepare a schema and import data into a Cassandra cluster.
 
-
 ### 1. Prepare the Schema
 
 Create a keyspace, tile spec table, and tile table.
@@ -34,7 +33,6 @@ Create a keyspace, tile spec table, and tile table.
 ```
 lein lcmap run-cql --file resources/schema.cql --hosts 192.168.33.20
 ```
-
 
 ### 2. Create Tile Specs
 
@@ -45,38 +43,20 @@ Eventually, these will be required command line parameters.
 You must do this once for Landsat 5, 7, and 8 archives.
 
 ```
-lein lcmap load-spec ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
-lein lcmap load-spec ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
-lein lcmap load-spec ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
+lein lcmap make-specs ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20 --tile-keyspace lcmap --tile-table conus --tile-size 256:256
+lein lcmap make-specs ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20 --tile-keyspace lcmap --tile-table conus --tile-size 256:256
+lein lcmap make-specs ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20 --tile-keyspace lcmap --tile-table conus --tile-size 256:256
 ```
 
-Provide keyspace, table, and tile size that overrides defaults.
+### 3. Create Tiles
 
 ```
-lein lcmap load-spec ~/Downloads/LC80460272013104-SC20151208193402.tar.gz \
-  --hosts 192.168.1.21  \
-  --tile-keyspace lcmap \
-  --tile-table conus_32 \
-  --tile-size 32:32
+lein lcmap make-tiles ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
+lein lcmap make-tiles ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
+lein lcmap make-tiles ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
 ```
 
-Please note: the tile spec code, although good enough for prototyping, assumes
-you know exactly what you are doing. If you have inconsistently projected data
-things will not work. However, it is likely that you will be given data that
-doesn't have consistency problems.
-
-
-### Ingest Some Data
-
-```
-lein lcmap ingest ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
-lein lcmap ingest ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
-lein lcmap ingest ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
-```
-
-Ingesting tiles will gracefully fail if you attempt to ingest data that does not conform
-to the corresponding tile specification. Currently, the tiling command only
-works with archives, it does not handle paths to decompressed archives yet.
+Ingesting tiles will gracefully fail if you attempt to ingest data that does not conform to the corresponding tile specification. Currently, the tiling command only works with archives, it does not handle paths to decompressed archives yet.
 
 
 ## License

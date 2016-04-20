@@ -116,10 +116,10 @@
         options-summary
         ""
         "Available commands:"
-        "  run-cql    Run a Cassandra query saved to a CQL file"
-        "  load-spec  Extract an ESPA archive tile specification, saving to the database"
-        "  ingest     Ingest tile data "
-        "  show-info  Display basic tool info such as configuration data"]
+        "  make-specs   Extract an ESPA archive tile specification, saving to the database"
+        "  make-tiles   Ingest tile data "
+        "  run-cql      Run a Cassandra query stored in CQL file"
+        "  show-config  Display basic tool info such as configuration data"]
        (string/join \newline)))
 
 (defn exit
@@ -136,8 +136,8 @@
   (let [cmd (-> cli-args :arguments first)
         system (component/start (sys/build combined-cfg))]
     (cond (= cmd "run-cql") (exec-cql cmd system cli-args)
-          (= cmd "load-spec") (make-specs cmd system cli-args)
-          (= cmd "ingest") (make-tiles cmd system cli-args)
+          (= cmd "make-specs") (make-specs cmd system cli-args)
+          (= cmd "make-tiles") (make-tiles cmd system cli-args)
           :else (log/error "Invalid command:" cmd))
     (component/stop system)
     (exit 0)))
