@@ -47,6 +47,16 @@ CREATE INDEX band_product_ix ON lcmap.tile_specs (band_product);
 CREATE INDEX band_name_ix ON lcmap.tile_specs (band_name);
 CREATE INDEX ubid_ix ON lcmap.tile_specs (ubid);
 
+-- Scene Inventory
+
+CREATE TABLE lcmap.scenes (
+    source text,
+    ubid text,
+    global_metadata text static,
+    PRIMARY KEY ((source), ubid)
+);
+
+
 -- Job Management (Science Model Execution Tracking)
 CREATE TABLE lcmap.job (
     job_id text PRIMARY KEY,
@@ -75,4 +85,3 @@ CREATE TABLE lcmap.ccdcmodel (
 
 ) WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
   AND COMMENT = 'CCDC model results table.';
-

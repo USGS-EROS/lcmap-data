@@ -4,7 +4,48 @@
             [clojure.xml :as xml]
             [clojure.zip :as zip]
             [clojure.data.zip.xml :refer :all]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log])
+  (:refer-clojure :exclude [load]))
+
+;; transformation functions
+
+(defn +acquired
+  [scene band]
+  (assoc band :acquired (scene :acquired)))
+
+(defn path
+  "Get absolute path to band's raster image."
+  [scene-dir band]
+  (.getAbsolutePath (io/file scene-dir (:file_name band))))
+
+(defn +path
+  "Add absolute path to raster for band."
+  [scene band]
+  (assoc band :path (path scene band)))
+
+(defn source
+  "Get source scene ID."
+  [scene]
+  (let [file-name (:lpgs_file scene)]
+    (re-find #"[A-Z0-9]+" file-name)))
+
+(defn +source
+  "Add source scene to band."
+  [scene band]
+  (assoc band :source (source scene)))
+
+(defn ubid
+  "Make a UBID for band."
+  [scene band]
+  (let [vals ((juxt :satellite :instrument :band_name) (merge scene band))]
+    (clojure.string/join "/" vals)))
+
+(defn +ubid
+  "Add UBID to band."
+  [scene band]
+  (assoc band :ubid (ubid scene band)))
+
+;; XML parsing functions
 
 (defn solar-angles->map
   "Convert a solar_angles element to a map."
@@ -16,26 +57,22 @@
                :units   (attr sazip :units)}]
     props))
 
-(defn lpgs-path
-  "Retrieve path to LPGS metadata file."
+(defn scene-id
+  "Use LPGS metadata file to deduce scene ID"
   [global]
-  (let [path (xml1-> global :lpgs_metadata_file text)]
-    path))
-
-(defn source-scene
-  "Extract implicit scene ID from relative LPGS metadata file path."
-  [lpgs-path]
-  (re-find #"[A-Z0-9]+" lpgs-path))
+  (let [file-name (xml1-> global :lpgs_metadata_file text)]
+    (re-find #"[A-Z0-9]+" file-name)))
 
 (defn global->map
   "Convert a global_metadata element to a map."
   [root]
   (let [gmzip (xml1-> root :global_metadata)]
-    {:satellite    (xml1-> gmzip :satellite text)
+    {:source       (scene-id gmzip)
+     :lpgs_file    (xml1-> gmzip :lpgs_metadata_file text)
+     :satellite    (xml1-> gmzip :satellite text)
      :instrument   (xml1-> gmzip :instrument text)
      :provider     (xml1-> gmzip :data_provider text)
      :acquired     (xml1-> gmzip :acquisition_date text)
-     :source       (-> gmzip lpgs-path source-scene)
      :solar_angles (solar-angles->map gmzip)}))
 
 (defn data-range->list
@@ -70,19 +107,9 @@
                                       (data-range->list band))
                      :data_units (attr band :data_units)
                      :data_mask  (mask-values->map band)}]]
-       props))
+    props))
 
-(defn parse-metadata
-  "Create a map from ESPA archive XML metadata."
-  [path]
-  (log/debug "Parsing metadata file:" path)
-  (let [data   (xml/parse path)
-        root   (zip/xml-zip data)
-        global (global->map root)
-        bands  (bands->list root)]
-    (map #(merge global %) bands)))
-
-(defn find-metadata
+(defn find-xml
   "Gets the path to the metadata file of an ESPA archive.
 
   If multiple XML files are present then the first match
@@ -94,9 +121,41 @@
         xml   (filter #(re-find #".+\.xml" %) names)]
     (first xml)))
 
-(defn load-metadata
-  "Find and parse metadata at path (a directory)."
+(defn parse-bands
+  "Create a list of bands from ESPA metadata."
   [path]
-  (let [xml-path (find-metadata path)
-        xml-data (parse-metadata xml-path)]
-    xml-data))
+  (log/debug "Parsing metadata file:" path)
+  (let [data (xml/parse path)
+        root (zip/xml-zip data)]
+    (bands->list root)))
+
+(defn load-bands
+  "Build list of bands from ESPA metadata."
+  [dir]
+  (let [xml-path (find-xml dir)]
+    (map #(+path dir %) (parse-bands xml-path))))
+
+(defn parse-global-metadata
+  "Process global_metadata element of XML at path."
+  [path]
+  (let [data (xml/parse path)
+        root (zip/xml-zip data)]
+    (global->map root)))
+
+(defn load-global-metadata
+  "Build global metadata map from ESPA metadata."
+  [dir]
+  (let [xml-path (find-xml dir)]
+    (parse-global-metadata xml-path)))
+
+(defn load
+  "Build a list of bands combined with global metadata."
+  [dir]
+  (let [bands (load-bands dir)
+        scene (load-global-metadata dir)]
+    (sequence (comp (map #(+acquired scene %))
+                    (map #(+path dir %))
+                    (map #(+source scene %))
+                    (map #(+ubid scene %))
+                    (map #(assoc % :global_metadata scene)))
+              bands)))

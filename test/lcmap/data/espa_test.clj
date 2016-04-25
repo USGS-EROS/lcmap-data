@@ -1,37 +1,46 @@
 (ns lcmap.data.espa-test
   (:require [clojure.test :refer :all]
             [lcmap.data.shared-test :as shared]
-            [lcmap.data.espa :refer :all]))
+            [lcmap.data.espa :as espa]))
 
-(deftest load-metadata-test
-  (let [path (shared/L8 :dir)
-        bands (load-metadata path)
-        masks (filter (comp seq :data-mask) bands)]
+(deftest load-test
+  (testing "parsing global and band metadata together"
+    (let [bands (espa/load shared/L8)]
+      (is (every? :global_metadata bands))
+      (is (every? :ubid bands))
+      (is (every? :path bands))
+      (is (every? :acquired bands)))))
+
+(deftest load-global-metadata-test
+  (testing "parsing global metadata"
+    (let [global (espa/load-global-metadata shared/L8)
+          actual (set (keys global))
+          expected #{:provider :satellite :instrument
+                     :acquired :solar_angles :source
+                     :lpgs_file}]
+      (is (empty? (clojure.set/difference actual expected))))))
+
+(deftest load-bands-test
+  (let [bands (espa/load shared/L8)
+        masks (filter (comp seq :data_mask) bands)]
     (testing "number of bands"
       (is (= (count bands) 20)))
-    (testing "global (common) attributes"
-      (is (every? #(= % "LANDSAT_8") (map :satellite bands)))
-      (is (every? #(= % "OLI_TIRS") (map :instrument bands)))
-      (is (every? #(= % "USGS/EROS") (map :provider bands)))
-      (is (every? #(= % "2015-10-29") (map :acquired bands))))
     (testing "band specific attributes"
       (let [band (first bands)]
-        (is (= (shared/L8 :img) (:file-name band)))
-        (is (= "toa_band1" (:band-name band)))
-        (is (= "LC8TOA" (:band-short-name band)))
-        (is (= "band 1 top-of-atmosphere reflectance" (:band-long-name band)))
-        (is (= "image" (:band-category band)))
-        (is (= "toa_refl" (:band-product band)))
-        (is (= "INT16" (:data-type band)))
-        (is (= -9999 (:data-fill band)))
-        (is (= 0.0001 (:data-scale band)))
-        (is (= [-2000 16000] (:data-range band)))
-        ;; only masks have data classifications
-        (is (empty? (:data-class band)))))
+        (is (= "toa_band1" (:band_name band)))
+        (is (= "LC8TOA" (:band_short_name band)))
+        (is (= "band 1 top-of-atmosphere reflectance" (:band_long_name band)))
+        (is (= "image" (:band_category band)))
+        (is (= "toa_refl" (:band_product band)))
+        (is (= "INT16" (:data_type band)))
+        (is (= -9999 (:data_fill band)))
+        (is (= 0.0001 (:data_scale band)))
+        (is (= [-2000 16000] (:data_range band)))
+        (is (empty? (:data_class band)))))
     (testing "mask bands"
       (is (= (count masks) 3)))
     (testing "cloud mask"
-      (let [mask (-> masks first :data-mask)]
+      (let [mask (-> masks first :data_mask)]
         (is (= mask {0 "cirrus cloud"
                      1 "cloud"
                      2 "adjacent to cloud"

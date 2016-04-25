@@ -7,6 +7,7 @@
                  [org.clojure/core.memoize "0.5.8"]
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/data.zip "0.1.1"]
+                 [org.clojure/data.json "0.2.6"]
                  [org.clojure/tools.cli "0.3.3"]
                  ;; logging
                  [twig "0.1.4"]
@@ -45,11 +46,13 @@
        {:active-profile "dev"
         ;; Use environment variables for DB configuration:
         ;; LCMAP_HOSTS, LCMAP_USER, LCMAP_PASS
-        :db {:hosts []
+        :db {:hosts ["192.168.1.21"]
              :port 9042
              :protocol-version 2
              :spec-keyspace "lcmap"
-             :spec-table "tile_specs"}
+             :spec-table "tile_specs"
+             :scene-keyspace "lcmap"
+             :scene-table "scenes"}
         :logger [lcmap.data :info
                  com.datastax :error
                  co.paralleluniverse :error

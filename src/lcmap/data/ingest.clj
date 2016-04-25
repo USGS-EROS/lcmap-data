@@ -6,6 +6,7 @@
             [clojure.core.memoize]
             [clojure.set]
             [lcmap.data.espa :as espa]
+            [lcmap.data.scene :as scene]
             [lcmap.data.tile :as tile]
             [lcmap.data.tile-spec :as tile-spec]
             [dire.core :refer [with-handler!]]
@@ -13,18 +14,6 @@
             [gdal.dataset]
             [pandect.algo.md5 :as md5]
             :reload))
-
-(defn +ubid
-  "Make a UBID and add it to the band."
-  [band]
-  (let [vals ((juxt :satellite :instrument :band_name) band)
-        ubid (clojure.string/join "/" vals)]
-    (assoc band :ubid ubid)))
-
-(defn +path
-  "Add absolute path to raster for band."
-  [scene band]
-  (assoc band :path (.getAbsolutePath (io/file scene (:file_name band)))))
 
 (defn +spec
   "Retrieve a spec (for the given UBID) and add it to the band. This assumes
@@ -142,10 +131,10 @@
   (let [params (-> tile
                    (select-keys [:ubid :proj-x :proj-y :acquired :source :data])
                    (clojure.set/rename-keys {:proj-x :x :proj-y :y}))
-        kn (tile :keyspace_name)
-        tn (tile :table_name)]
+        keyspace (tile :keyspace_name)
+        table (tile :table_name)]
     (log/debug "saving tile ..." params)
-    (tile/save db kn tn params)))
+    (tile/save db keyspace table params)))
 
 ;;; tile producing functions
 
@@ -153,7 +142,7 @@
   "Create sequence of from ESPA XML metadata."
   [path band-xf]
   (log/debug "producing bands for scene ...")
-  (sequence band-xf (espa/load-metadata path)))
+  (sequence band-xf (espa/load path)))
 
 (defn dataset->tiles
   "Create sequence of tile from dataset referenced by band."
@@ -179,26 +168,25 @@
   [db band]
   ;; Tiles must be saved within the context of dataset or else the
   ;; data buffer will reference a byte buffer that cannot be read!
-  (log/info "processing band started ..." (:ubid band))
   (gdal.core/with-dataset [dataset (:path band)]
     (let [tile-xf (comp (map #(merge band %))
                         (map locate)
                         (remove fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
+      (log/info "processing band started ..." (:ubid band))
       (dorun (pmap #(process-tile db %) tiles))
+      (scene/save-band db band)
       (log/info "processing band done ..." (:ubid band)))))
 
 (defn process-scene
   "Saves all bands in dir referenced by path."
   [db scene-dir]
-  (log/info "start processing scene" scene-dir)
-  (let [band-xf (comp (map (partial +path scene-dir))
-                      (map +ubid)
-                      (map (partial +spec db))
+  (let [band-xf (comp (map (partial +spec db))
                       (map +fill)
                       (map +locate)
                       (filter conforms?))]
+    (log/info "start processing scene" scene-dir)
     (dorun (pmap #(process-band db %) (scene->bands scene-dir band-xf)))
     (log/info "done processing" scene-dir)))
 

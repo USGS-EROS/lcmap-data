@@ -3,6 +3,7 @@
             [lcmap.data.ingest :as ingest]
             [lcmap.data.tile :as tile]
             [lcmap.data.tile-spec :as tile-spec]
+            [lcmap.data.scene :as scene]
             [lcmap.data.util :as util]
             [lcmap.data.espa  :as espa]
             [gdal.core :as gc]
