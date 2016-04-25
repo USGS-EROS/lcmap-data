@@ -81,7 +81,7 @@
   [cmd system opts]
   (log/infof "Running command: '%s'" cmd)
   (let [paths (-> opts :arguments rest)
-        db    (-> system :database)]
+        db    (system :database)]
     (doseq [path paths]
       (util/with-temp [dir path]
         (ingest/process-scene db dir)))))
@@ -92,7 +92,7 @@
   (log/infof "Running command: '%s'" cmd)
   (let [paths (-> opts :arguments rest)
         args  (:options opts)
-        db    (-> system :database)]
+        db    (:database system)]
     (doseq [path paths]
       (util/with-temp [dir path]
         (adopt/process-scene db dir args)))))

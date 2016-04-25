@@ -10,7 +10,7 @@
     ;; XXX Add support for credentials.
     ;; XXX Add support for retry policies.
     (log/info "Starting DB component ...")
-    (let [db-cfg   (-> component :config :db)
+    (let [db-cfg   (get-in component [:config :db])
           hosts    (:hosts db-cfg)
           opts     (select-keys db-cfg [:port :protocol-version])
           session  (client/connect hosts opts)]
@@ -18,7 +18,7 @@
   (stop [component]
     (log/info "Stopping DB component ...")
     (try
-      (let [session (-> component :session)]
+      (let [session (component :session)]
         (client/disconnect session))
       (catch Exception ex
         (log/error "Could not disconnect from session")))

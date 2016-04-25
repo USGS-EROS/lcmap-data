@@ -111,7 +111,7 @@
   [tile]
   (let [direct-buffer (:data tile)
         _ (.rewind direct-buffer)
-        char-data (.toString (.asCharBuffer direct-buffer))]
+        char-data (str (.asCharBuffer direct-buffer))]
     (str (md5/md5 char-data))))
 
 (defn checksum

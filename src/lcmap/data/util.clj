@@ -26,7 +26,7 @@
 (defn entries
   "Lazily retrieve a list of archive entries."
   [archive]
-  (when-let [entry (. archive getNextEntry)]
+  (when-let [entry (.getNextEntry archive)]
     (cons entry (lazy-seq (entries archive)))))
 
 (defn create-entry
@@ -46,7 +46,7 @@
    (unarchive src (fs/file (fs/base-name src true))))
   ([src dest]
    (with-open [src-stream (io/input-stream src)
-               archive (. (new ArchiveStreamFactory) createArchiveInputStream src-stream)]
+               archive (.createArchiveInputStream (new ArchiveStreamFactory) src-stream)]
      (doseq [entry (entries archive)]
        (create-entry archive entry dest)))
    dest))
@@ -63,7 +63,7 @@
    (with-open [src-stream (io/input-stream src)
                dest-stream (io/output-stream dest)]
      (let [csf (new CompressorStreamFactory)
-           cis (. csf createCompressorInputStream src-stream)]
+           cis (.createCompressorInputStream csf src-stream)]
        (io/copy cis dest-stream)))
    dest))
 
