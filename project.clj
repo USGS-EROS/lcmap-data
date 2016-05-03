@@ -10,7 +10,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/tools.cli "0.3.3"]
                  ;; logging
-                 [twig "0.1.4"]
+                 [twig "0.1.6"]
                  [janino "2.5.10"]
                  ;; error handling
                  [dire "0.5.4"]
