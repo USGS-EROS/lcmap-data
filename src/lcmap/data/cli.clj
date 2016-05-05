@@ -13,52 +13,11 @@
             [lcmap.data.system :as sys]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.adopt :as adopt]
-            [lcmap.data.util :as util])
+            [lcmap.data.util :as util]
+            [lcmap.data.config :as config])
   (:gen-class))
 
-(defn parse-int
-  "Helper function"
-  [x]
-  (Integer/parseInt x))
-
-(defn parse-shape
-  "Helper function to convert data-shape param into list of numbers"
-  [shape]
-  (->> shape
-       (#(clojure.string/split % #":"))
-       (map parse-int)))
-
-(def option-specs
-  [["-h" "--help"]
-   ["-H" "--hosts HOST1,HOST2,HOST3" "List of hosts"
-    :parse-fn #(clojure.string/split % #"[, ]")
-    :default (clojure.string/split
-      (or (System/getenv "LCMAP_HOSTS") "") #"[, ]")]
-   ["-u" "--username USERNAME" "Cassandra user ID"
-    :default (System/getenv "LCMAP_USER")]
-   ["-p" "--password PASSWORD" "Cassandra password"
-    :default (System/getenv "LCMAP_PASS")]
-   ["-k" "--spec-keyspace SPEC_KEYSPACE" ""
-    :default (System/getenv "LCMAP_SPEC_KEYSPACE")]
-   ["-t" "--spec-table SPEC_TABLE" ""
-    :default (System/getenv "LCMAP_SPEC_TABLE")]
-   [nil "--tile-table TILE_TABLE"
-    :default (System/getenv "LCMAP_TILE_TABLE")]
-   [nil "--tile-keyspace TILE_KEYSPACE"
-    :default (System/getenv "LCMAP_TILE_KEYSPACE")]
-   [nil "--tile-size x:y"
-    (str "Colon-separated pixel values for the width:height shape of tiles "
-         "to create during ingest.")
-    :default [256 256]
-    :parse-fn parse-shape]
-   ;; XXX load default from proper env variable? parse string?
-   ["-b" "--batch-size n"
-    "The number of tiles to process at a time. Placeholder, not used."
-    :default (or (System/getenv "LCMAP_BATCH_SIZE") 50)
-    :parse-fn parse-int]
-   [nil "--file PATH_TO_CQL" ""
-    :default "resources/schema.cql"]
-   ])
+;;; command: lein lcmap run-cql
 
 (defn execute-cql
   "Execute all statements in file specified by path"
@@ -66,36 +25,70 @@
   (let [conn (-> system :database :session)
         cql-file (slurp path)
         statements (map clojure.string/trim (clojure.string/split cql-file #";"))]
-    (doseq [stmt (remove empty? statements)]
+    (for [stmt (remove empty? statements)]
       (cc/execute conn stmt))))
+
+(def exec-cql-spec
+  [["-f" "--file PATH"]])
 
 (defn exec-cql
   "Executes CQL (useful for creating schema and seeding data)"
-  [cmd system opts]
+  [cmd system cli-args]
   (log/infof "Running command: '%s'" cmd)
-  (let [path (-> opts :options :file)]
-    (execute-cql system path)))
+  (let [opts (cli/parse-opts (:arguments cli-args) exec-cql-spec)
+        path (get-in opts [:options :file])]
+    (doall (execute-cql system path))))
+
+;;; command: lein lcmap make-tiles
+
+(def make-tile-opts
+  [[nil "--checksum"
+    "Produce file containing tile checksums"]])
 
 (defn make-tiles
   "Generate tiles from an ESPA archive"
-  [cmd system opts]
+  [cmd system cli-args]
   (log/infof "Running command: '%s'" cmd)
-  (let [paths (-> opts :arguments rest)
-        db    (system :database)]
+  (let [opts  (cli/parse-opts (:arguments cli-args) make-tile-opts)
+        paths (-> opts :arguments rest)
+        db    (:database system)]
     (doseq [path paths]
       (util/with-temp [dir path]
         (ingest/process-scene db dir)))))
 
+;;; command: lein lcmap make-specs
+
+(defn parse-shape
+  "Helper function to convert data-shape param into list of numbers"
+  [shape]
+  (->> shape
+       (#(clojure.string/split % #":"))
+       (map #(Integer/parseInt %))))
+
+(def make-specs-opts
+  [[nil "--tile-keyspace TARGET_KEYSPACE"
+    "Keyspace name containing tile table."]
+   [nil "--tile-table TARGET_TILE_TABLE"
+    "Table name to store tiles matching derived spec."]
+   [nil "--tile-size X:Y"
+    (str "Colon-separated pixel values for the width:height shape of tiles "
+         "to create during ingest.")
+    :default [128 128]
+    :parse-fn parse-shape]])
+
 (defn make-specs
   "Generate specs from an ESPA archive"
-  [cmd system opts]
+  [cmd system cli-args]
   (log/infof "Running command: '%s'" cmd)
-  (let [paths (-> opts :arguments rest)
+  (let [opts  (cli/parse-opts (:arguments cli-args) make-specs-opts)
+        paths (-> opts :arguments rest)
         args  (:options opts)
         db    (:database system)]
     (doseq [path paths]
       (util/with-temp [dir path]
         (adopt/process-scene db dir args)))))
+
+;;; command: lein lcmap --info
 
 (defn show-info
   "Display combined cli options, environment, and profile values"
@@ -104,8 +97,9 @@
   (println "lcmap.data information:\n")
   (pprint/pprint config-map))
 
+;;; command: lein lcmap --help
 
-(defn usage
+(defn help
   "Produce help text"
   [options-summary]
   (->> ["The command line interface for lcmap.data."
@@ -129,12 +123,14 @@
     (println msg)
     (exit status)))
 
+;;; entry point related functions
+
 (defn run
   "Init system and invoke function for user specified command"
-  [cli-args combined-cfg]
-  (twig/set-level! ['lcmap.data] :info)
+  [cli-args]
+  (twig/set-level! ['lcmap.data] :info) ;; XXX why?
   (let [cmd (-> cli-args :arguments first)
-        system (component/start (sys/build combined-cfg))]
+        system (component/start (sys/build (cli-args :arguments)))]
     (cond (= cmd "run-cql") (exec-cql cmd system cli-args)
           (= cmd "make-specs") (make-specs cmd system cli-args)
           (= cmd "make-tiles") (make-tiles cmd system cli-args)
@@ -142,20 +138,25 @@
     (component/stop system)
     (exit 0)))
 
+(def main-opts
+  [["-h" "--help"]
+   ["-i" "--info"]])
+
 (defn -main
   "Entry point for command line execution"
   [& args]
-  (let [cli-args (cli/parse-opts args option-specs)
-        db-opts  {:db {:hosts (get-in cli-args [:options :hosts])
-                       :credentials (select-keys (cli-args :options) [:username :password])}}
-        env-opts (util/get-config)
-        combined-cfg (util/deep-merge env-opts db-opts {:opts (:options cli-args)})
+  ;; Use :in-order true because sub-commands may expect
+  ;; to parse options of their own.
+  (let [cli-args (cli/parse-opts args main-opts :in-order true)
+        cfg (config/init {:args args})
         help? (:help (:options cli-args))
-        info? (= "show-info" (first (:arguments cli-args)))]
+        info? (:info (:options cli-args))]
     (cond
-      help? (exit 0 (usage (:summary cli-args)))
-      info? (show-info combined-cfg)
-      :else (run cli-args combined-cfg))))
+      help? (exit 0 (help (:summary cli-args)))
+      info? (show-info cfg)
+      :else (run cli-args))))
+
+;;; exception handlers
 
 (with-handler! #'-main
   java.lang.Exception

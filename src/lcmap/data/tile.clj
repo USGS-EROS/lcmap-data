@@ -15,18 +15,18 @@
   "Transform an arbitrary projection system coordinate (x,y) into the
    coordinate of the tile that contains it."
   [x y spec]
-  (let [{:keys [:tile_x :tile_y :shift_x :shift_y]} spec
-        tx (+ shift_x (- x (mod x tile_x)))
-        ty (+ shift_y (- y (mod y tile_y)))]
+  (let [{:keys [tile_x tile_y shift_x shift_y]} spec
+        tx (- x (mod (+ x shift_x) tile_x))
+        ty (- y (mod (+ y shift_y) tile_y))]
     (log/debug "Snap: (%d,%d) to (%d,%d)" x y tx ty)
-    [(int tx) (int ty)]))
+    [(long tx) (long ty)]))
 
 (defn find
   "Query DB for all tiles that match the UBID, contain (x,y), and
    were acquired during a certain period of time."
-  [ubid x y acquired db]
+  [db {:keys [ubid x y acquired] :as tile}]
   (let [spec     (first (tile-spec/find ubid db))
-        session  (get-in db [:session])
+        session  (:session db)
         keyspace (:keyspace_name spec)
         table    (:table_name spec)
         [tx ty]  (snap x y spec)

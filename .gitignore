@@ -12,3 +12,4 @@ pom.xml.asc
 .hgignore
 .hg/
 .env
+test/lcmap.test.ini

@@ -21,10 +21,12 @@
 
 (def sys nil)
 
+(def cfg-opts {})
+
 (defn init
   "Prepare the system without starting it"
   []
-  (alter-var-root #'sys #(when-not % (system/build (util/get-config)))))
+  (alter-var-root #'sys #(when-not % (system/build cfg-opts))))
 
 (defn start
   "Start the system (if it exists)"

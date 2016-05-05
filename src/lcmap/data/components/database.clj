@@ -7,14 +7,14 @@
 (defrecord Database []
   component/Lifecycle
   (start [component]
-    ;; XXX Add support for credentials.
-    ;; XXX Add support for retry policies.
     (log/info "Starting DB component ...")
-    (let [db-cfg   (get-in component [:config :db])
-          hosts    (:hosts db-cfg)
-          opts     (select-keys db-cfg [:port :protocol-version])
-          session  (client/connect hosts opts)]
-      (assoc component :session session)))
+    (let [db-conf (get-in component [:config :lcmap.data.components.db])
+          hosts   (:hosts db-conf)
+          opts    {} ;; XXX revisit (user, pass, policies...)
+          session (client/connect hosts opts)]
+      (-> component
+          (assoc :session session)
+          (merge db-conf))))
   (stop [component]
     (log/info "Stopping DB component ...")
     (try

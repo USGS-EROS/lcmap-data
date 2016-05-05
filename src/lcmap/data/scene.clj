@@ -18,9 +18,9 @@
 (defn column-names
   ""
   [db]
-  (let [session (get-in db [:session])
-        kn (get-in db [:config :db :scene-keyspace])
-        tn (get-in db [:config :db :scene-table])
+  (let [session (:session db)
+        kn (:scene-keyspace db)
+        tn (:scene-table db)
         columns (cql/describe-columns session kn tn)]
     (->> columns
          (map :column_name)
@@ -33,9 +33,9 @@
 (defn find
   ""
   [db scene]
-  (let [session (get-in db [:session])
-        kn (get-in db [:config :db :scene-keyspace])
-        tn (get-in db [:config :db :scene-table])
+  (let [session (:session db)
+        kn (:scene-keyspace db)
+        tn (:scene-table db)
         scene- (select-keys scene (column-names-memo db))]
     (cql/use-keyspace session kn)
     (cql/select session tn (query/where scene))))
@@ -43,14 +43,12 @@
 (defn save
   ""
   [db scene]
-  (let [session (get-in db [:session])
-        kn (get-in db [:config :db :scene-keyspace])
-        tn (get-in db [:config :db :scene-table])
+  (let [session (:session db)
+        kn (:scene-keyspace db)
+        tn (:scene-table db)
         scene- (select-keys scene (column-names-memo db))]
     (cql/use-keyspace session kn)
     (cql/insert-async session tn scene)))
-
-;; the ubid isn't associated with test data...
 
 (defn save-band
   ""

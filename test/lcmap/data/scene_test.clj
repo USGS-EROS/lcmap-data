@@ -1,7 +1,7 @@
 (ns lcmap.data.scene-test
   (:require [clojure.test :refer :all]
-            [lcmap.data.scene :as scene]
-            [lcmap.data.shared-test :as shared]))
+            [lcmap.data.shared-test :as shared]
+            [lcmap.data.scene :as scene]))
 
 (deftest save-test
   (testing "save"
@@ -20,5 +20,3 @@
     (let [db (:database shared/test-system)
           res (scene/column-names db)]
       (is (= [:source :ubid])))))
-
-#_(-> shared/test-system :database :config)

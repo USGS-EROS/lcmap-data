@@ -13,9 +13,9 @@
    from a map that need to be persisted. Cassaforte does not ignore key/values
    when inserting data (quite reasonably)."
   [db]
-  (let [session       (get-in db [:session])
-        spec-keyspace (get-in db [:config :db :spec-keyspace])
-        spec-table    (get-in db [:config :db :spec-table])
+  (let [session       (:session db)
+        spec-keyspace (:spec-keyspace db)
+        spec-table    (:spec-table db)
         columns       (cql/describe-columns session spec-keyspace spec-table)]
     (->> columns
          (map :column_name)
@@ -25,9 +25,9 @@
 (defn find
   "Retrieve a tile spec for given band."
   [db params]
-  (let [session       (get-in db [:session])
-        spec-keyspace (get-in db [:config :db :spec-keyspace])
-        spec-table    (get-in db [:config :db :spec-table])]
+  (let [session       (:session db)
+        spec-keyspace (:spec-keyspace db)
+        spec-table    (:spec-table db)]
     ;; XXX save ignores param keys that do not correspond to
     ;;     a column, should find do the same?
     (log/debugf "Find tile-spec: %s" params)
@@ -41,9 +41,9 @@
    to a tile-spec table column."
   [db tile-spec]
   (log/debugf "Save tile-spec: %s" tile-spec)
-  (let [session       (get-in db [:session])
-        spec-keyspace (get-in db [:config :db :spec-keyspace])
-        spec-table    (get-in db [:config :db :spec-table])
+  (let [session       (:session db)
+        spec-keyspace (:spec-keyspace db)
+        spec-table    (:spec-table db)
         params        (select-keys tile-spec (column-names db))]
       (cql/use-keyspace session spec-keyspace)
       (cql/insert session spec-table params)))

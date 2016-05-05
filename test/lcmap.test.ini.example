@@ -1,0 +1,11 @@
+[lcmap.data.components.db]
+hosts=host1,host2,host3
+spec_keyspace=lcmap_test
+spec_table=tile_specs
+scene_keyspace=lcmap_test
+scene_table=tile_scenes
+; user=you
+; pass=secret
+
+[lcmap.data.components.gdal]
+version=1.11.13
