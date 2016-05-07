@@ -9,7 +9,7 @@
 
   (start [component]
     (log/info "Starting logger component ...")
-    (let [ns-levels (partition 2 (get-in component [:config :logger]))]
+    (let [ns-levels (partition 2 (get-in component [:cfg :logger]))]
       (log/debug "Using log-level" ns-levels)
       (doseq [args ns-levels] (apply logger/set-level! args))
       (log/debug "Logging agent:" log/*logging-agent*)

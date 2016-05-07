@@ -18,15 +18,15 @@
 (defn build [opts]
   (log/info "Starting system ...")
   (component/system-map
-    :config   (component/using
+    :cfg     (component/using
                (config/new-configuration opts)
                [])
     :logger   (component/using
                 (logger/new-logger)
-                [:config])
+                [:cfg])
     :gdal     (component/using
                 (gdal/new-gdal)
-                [:config])
+                [:cfg])
     :database (component/using
                 (database/new-database)
-                [:config])))
+                [:cfg])))

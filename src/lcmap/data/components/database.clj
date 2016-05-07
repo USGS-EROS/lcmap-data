@@ -8,7 +8,7 @@
   component/Lifecycle
   (start [component]
     (log/info "Starting DB component ...")
-    (let [db-conf (get-in component [:config :lcmap.data.components.db])
+    (let [db-conf (get-in component [:cfg :lcmap.data.components.db])
           hosts   (:hosts db-conf)
           opts    {} ;; XXX revisit (user, pass, policies...)
           session (client/connect hosts opts)]
