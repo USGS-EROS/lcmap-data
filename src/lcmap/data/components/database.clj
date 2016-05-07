@@ -1,20 +1,18 @@
 (ns lcmap.data.components.database
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.tools.logging :as log]
             [clojurewerkz.cassaforte.client :as client]
-            [clojurewerkz.cassaforte.cql :as cql]
-            [clojure.tools.logging :as log]))
+            [com.stuartsierra.component :as component]
+            [lcmap.config.cassaforte :refer [connect-opts]]))
 
 (defrecord Database []
   component/Lifecycle
   (start [component]
     (log/info "Starting DB component ...")
     (let [db-conf (get-in component [:cfg :lcmap.data.components.db])
-          hosts   (:hosts db-conf)
-          opts    {} ;; XXX revisit (user, pass, policies...)
-          session (client/connect hosts opts)]
+          session (apply client/connect (connect-opts db-conf))]
       (-> component
-          (assoc :session session)
-          (merge db-conf))))
+          (merge db-conf)
+          (assoc :session session))))
   (stop [component]
     (log/info "Stopping DB component ...")
     (try
