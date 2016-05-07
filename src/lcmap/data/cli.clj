@@ -10,6 +10,7 @@
             [com.stuartsierra.component :as component]
             [dire.core :refer [with-handler!]]
             [twig.core :as twig]
+            [lcmap.config.helpers :as config-helpers]
             [lcmap.data.system :as sys]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.adopt :as adopt]
@@ -148,7 +149,7 @@
   ;; Use :in-order true because sub-commands may expect
   ;; to parse options of their own.
   (let [cli-args (cli/parse-opts args main-opts :in-order true)
-        cfg (config/init {:args args})
+        cfg (config-helpers/init-cfg (merge config/defaults {:args args}))
         help? (:help (:options cli-args))
         info? (:info (:options cli-args))]
     (cond

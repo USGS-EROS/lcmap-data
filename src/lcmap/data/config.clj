@@ -35,16 +35,10 @@
    ;; permits configs maps for other components
    schema/Keyword schema/Any})
 
-(defn init
-  "Produce a validated configuration map. When configuration is
-  built in the context of another system, you may want to compose
-  a schema for only the components you will use."
-  [{:keys [path spec args schema]
-    :or   {path (clojure.java.io/file (System/getenv "HOME") ".usgs" "lcmap.ini")
-           spec opt-spec
-           args *command-line-args*
-           schema cfg-schema}}]
-  (cfg/init-cfg {:ini  path
-                 :args args
-                 :spec spec
-                 :schema schema}))
+;;; Project's default parameters for use with lcmap.config.helpers/init-cfg
+
+(def defaults
+  {:ini (clojure.java.io/file (System/getenv "HOME") ".usgs" "lcmap.ini")
+   :spec opt-spec
+   :args *command-line-args*
+   :schema cfg-schema})
