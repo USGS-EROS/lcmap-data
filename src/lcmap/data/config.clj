@@ -1,10 +1,7 @@
 (ns lcmap.data.config
-  (:require [lcmap.config.helpers :as cfg]
+  "Provides schemas for validating "
+  (:require [lcmap.config.helpers :refer :all]
             [schema.core :as schema]))
-
-(def opt-spec [[nil "--foo VALUE"]
-               [nil "--bar VALUE"]
-               [nil "--baz VALUE"]])
 
 ;;; configuration schemas
 
@@ -17,19 +14,18 @@
    :scene-table    schema/Str
    :scene-keyspace schema/Str})
 
-;;; Composition of all sub-schemas. Notice the convention:
-;;; the keywords at the root of the map match the component's
-;;; namespace so that each component knows where to locate
-;;; its specific configuration map.
-
 (def cfg-schema
   {:lcmap.data db-schema
    schema/Keyword schema/Any})
 
-(def defaults
-  {:ini (clojure.java.io/file (System/getenv "HOME") ".usgs" "lcmap.ini")
-   :spec opt-spec
-   :args *command-line-args*
-   :schema cfg-schema})
+;;; cli opt-specs placeholder
 
-(cfg/init-cfg defaults)
+(def opt-spec [])
+
+;;; Default parameters for use with lcmap.config.helpers/init-cfg
+
+(def defaults
+  {:ini *lcmap-config-ini*
+   :args *command-line-args*
+   :spec opt-spec
+   :schema cfg-schema})
