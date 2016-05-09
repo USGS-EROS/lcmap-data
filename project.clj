@@ -10,7 +10,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/tools.cli "0.3.3"]
                  ;; environment/config
-                 [gov.usgs.eros/lcmap-config "0.5.0-SNAPSHOT"]
+                 ;[gov.usgs.eros/lcmap-config "0.5.0-SNAPSHOT"]
                  ;; logging
                  [twig "0.1.6"]
                  [janino "2.5.10"]
