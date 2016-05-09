@@ -19,8 +19,8 @@
   ""
   [db]
   (let [session (:session db)
-        kn (:scene-keyspace db)
-        tn (:scene-table db)
+        kn (get-in db [:cfg :lcmap.data :scene-keyspace])
+        tn (get-in db [:cfg :lcmap.data :scene-keyspace])
         columns (cql/describe-columns session kn tn)]
     (->> columns
          (map :column_name)
