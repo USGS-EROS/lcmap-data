@@ -8,21 +8,14 @@
 
 ;;; configuration schemas
 
-(def db-cfg-schema
-  {:hosts          [schema/Str]
-   :user           schema/Str
-   :pass           schema/Str
+(def db-schema
+  {:db-hosts       [schema/Str]
+   :db-user        schema/Str
+   :db-pass        schema/Str
    :spec-keyspace  schema/Str
    :spec-table     schema/Str
    :scene-table    schema/Str
-   :scene-keyspace schema/Str
-   schema/Keyword  schema/Str})
-
-(def gdal-cfg-schema
-  {schema/Keyword schema/Str})
-
-(def logging-cfg-schema
-  {schema/Keyword schema/Str})
+   :scene-keyspace schema/Str})
 
 ;;; Composition of all sub-schemas. Notice the convention:
 ;;; the keywords at the root of the map match the component's
@@ -30,15 +23,13 @@
 ;;; its specific configuration map.
 
 (def cfg-schema
-  {:lcmap.data.components.db db-cfg-schema
-   :lcmap.data.components.gdal gdal-cfg-schema
-   ;; permits configs maps for other components
+  {:lcmap.data db-schema
    schema/Keyword schema/Any})
-
-;;; Project's default parameters for use with lcmap.config.helpers/init-cfg
 
 (def defaults
   {:ini (clojure.java.io/file (System/getenv "HOME") ".usgs" "lcmap.ini")
    :spec opt-spec
    :args *command-line-args*
    :schema cfg-schema})
+
+(cfg/init-cfg defaults)

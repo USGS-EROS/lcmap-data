@@ -8,11 +8,9 @@
   component/Lifecycle
   (start [component]
     (log/info "Starting DB component ...")
-    (let [db-conf (get-in component [:cfg :lcmap.data.components.db])
+    (let [db-conf (get-in component [:cfg :lcmap.data])
           session (apply client/connect (connect-opts db-conf))]
-      (-> component
-          (merge db-conf)
-          (assoc :session session))))
+      (assoc component :session session)))
   (stop [component]
     (log/info "Stopping DB component ...")
     (try

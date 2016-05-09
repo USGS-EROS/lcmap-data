@@ -14,8 +14,8 @@
    when inserting data (quite reasonably)."
   [db]
   (let [session       (:session db)
-        spec-keyspace (:spec-keyspace db)
-        spec-table    (:spec-table db)
+        spec-keyspace (get-in db [:cfg :lcmap.data :spec-keyspace])
+        spec-table    (get-in db [:cfg :lcmap.data :spec-table])
         columns       (cql/describe-columns session spec-keyspace spec-table)]
     (->> columns
          (map :column_name)
@@ -26,8 +26,8 @@
   "Retrieve a tile spec for given band."
   [db params]
   (let [session       (:session db)
-        spec-keyspace (:spec-keyspace db)
-        spec-table    (:spec-table db)]
+        spec-keyspace (get-in db [:cfg :lcmap.data :spec-keyspace])
+        spec-table    (get-in db [:cfg :lcmap.data :spec-table])]
     ;; XXX save ignores param keys that do not correspond to
     ;;     a column, should find do the same?
     (log/debugf "Find tile-spec: %s" params)
@@ -42,8 +42,8 @@
   [db tile-spec]
   (log/debugf "Save tile-spec: %s" tile-spec)
   (let [session       (:session db)
-        spec-keyspace (:spec-keyspace db)
-        spec-table    (:spec-table db)
+        spec-keyspace (get-in db [:cfg :lcmap.data :spec-keyspace])
+        spec-table    (get-in db [:cfg :lcmap.data :spec-table])
         params        (select-keys tile-spec (column-names db))]
       (cql/use-keyspace session spec-keyspace)
       (cql/insert session spec-table params)))
