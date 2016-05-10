@@ -5,18 +5,18 @@
 
 ;;; configuration schemas
 
-(def db-schema
-  {:db-hosts       [schema/Str]
-   :db-user        schema/Str
-   :db-pass        schema/Str
-   :spec-keyspace  schema/Str
-   :spec-table     schema/Str
-   :scene-table    schema/Str
-   :scene-keyspace schema/Str})
+(def data-schema
+  {:lcmap.data {:db-hosts       [schema/Str]
+                :db-user        schema/Str
+                :db-pass        schema/Str
+                :spec-keyspace  schema/Str
+                :spec-table     schema/Str
+                :scene-table    schema/Str
+                :scene-keyspace schema/Str}})
 
 (def cfg-schema
-  {:lcmap.data db-schema
-   schema/Keyword schema/Any})
+  (merge data-schema
+         {schema/Keyword schema/Str}))
 
 ;;; cli opt-specs placeholder
 
