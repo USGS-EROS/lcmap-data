@@ -7,9 +7,13 @@
 
 (defn create-tile-specs
   ""
-  [{:keys [session spec-keyspace spec-table] :as db}]
-  (let [shared {:keyspace_name spec-keyspace
-                :table_name "conus"
+  [db]
+  (let [session (:session db)
+        spec-keyspace (get-in db [:cfg :lcmap.data :spec-keyspace])
+        spec-table (get-in db [:cfg :lcmap.data :spec-table])
+        tile-table "conus"
+        shared {:keyspace_name spec-keyspace
+                :table_name tile-table
                 :data_shape [128 128]
                 :pixel_x 30
                 :pixel_y -30
@@ -24,9 +28,16 @@
 
 (defn delete-tile-specs
   ""
-  [{:keys [session spec-keyspace spec-table] :as db}]
-  (cql/use-keyspace session spec-keyspace)
-  (cql/delete session spec-table (query/where {:keyspace_name spec-keyspace :table_name "conus"})))
+  [db]
+  (let [session (:session db)
+        spec-keyspace (get-in db [:cfg :lcmap.data :spec-keyspace])
+        spec-table (get-in db [:cfg :lcmap.data :spec-table])
+        tile-table "conus"]
+    (cql/use-keyspace session spec-keyspace)
+    (cql/delete session
+                spec-table
+                (query/where {:keyspace_name spec-keyspace
+                              :table_name tile-table}))))
 
 (defn tile-spec-fixtures
   [f]
