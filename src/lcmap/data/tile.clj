@@ -25,7 +25,7 @@
   "Query DB for all tiles that match the UBID, contain (x,y), and
    were acquired during a certain period of time."
   [db {:keys [ubid x y acquired] :as tile}]
-  (let [spec     (first (tile-spec/find ubid db))
+  (let [spec     (first (tile-spec/find db {:ubid ubid}))
         session  (:session db)
         keyspace (:keyspace_name spec)
         table    (:table_name spec)
@@ -36,6 +36,7 @@
                                [= :y ty]
                                [>= :acquired (str t1)]
                                [<= :acquired (str t2)]])]
+    (log/debug "find tiles" ubid x y acquired)
     (cql/use-keyspace session keyspace)
     (cql/select session table where)))
 
