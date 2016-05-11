@@ -12,7 +12,8 @@
                 :spec-keyspace  schema/Str
                 :spec-table     schema/Str
                 :scene-table    schema/Str
-                :scene-keyspace schema/Str}})
+                :scene-keyspace schema/Str
+                schema/Keyword  schema/Str}})
 
 (def cfg-schema
   (merge data-schema
