@@ -16,7 +16,7 @@
 
 (def cfg-schema
   (merge data-schema
-         {schema/Keyword schema/Str}))
+         {schema/Keyword schema/Any}))
 
 ;;; cli opt-specs placeholder
 
