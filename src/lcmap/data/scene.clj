@@ -34,8 +34,8 @@
   ""
   [db scene]
   (let [session (:session db)
-        kn (:scene-keyspace db)
-        tn (:scene-table db)
+        kn (get-in db [:cfg :lcmap.data :scene-keyspace])
+        tn (get-in db [:cfg :lcmap.data :scene-table])
         scene- (select-keys scene (column-names-memo db))]
     (cql/use-keyspace session kn)
     (cql/select session tn (query/where scene))))
@@ -44,8 +44,8 @@
   ""
   [db scene]
   (let [session (:session db)
-        kn (:scene-keyspace db)
-        tn (:scene-table db)
+        kn (get-in db [:cfg :lcmap.data :scene-keyspace])
+        tn (get-in db [:cfg :lcmap.data :scene-table])
         scene- (select-keys scene (column-names-memo db))]
     (cql/use-keyspace session kn)
     (cql/insert-async session tn scene)))
