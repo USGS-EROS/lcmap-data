@@ -10,6 +10,7 @@
             [com.stuartsierra.component :as component]
             [dire.core :refer [with-handler!]]
             [twig.core :as twig]
+            [lcmap.config.helpers :as config-helpers]
             [lcmap.data.system :as sys]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.adopt :as adopt]
@@ -130,7 +131,8 @@
   [cli-args]
   (twig/set-level! ['lcmap.data] :info) ;; XXX why?
   (let [cmd (-> cli-args :arguments first)
-        system (component/start (sys/build (cli-args :arguments)))]
+        cfg-opts (merge config/defaults {:args (cli-args :arguments)})
+        system (component/start (sys/build cfg-opts))]
     (cond (= cmd "run-cql") (exec-cql cmd system cli-args)
           (= cmd "make-specs") (make-specs cmd system cli-args)
           (= cmd "make-tiles") (make-tiles cmd system cli-args)
@@ -148,7 +150,7 @@
   ;; Use :in-order true because sub-commands may expect
   ;; to parse options of their own.
   (let [cli-args (cli/parse-opts args main-opts :in-order true)
-        cfg (config/init {:args args})
+        cfg (config-helpers/init-cfg (merge config/defaults {:args args}))
         help? (:help (:options cli-args))
         info? (:info (:options cli-args))]
     (cond

@@ -21,6 +21,21 @@ identifiers that a _tile_ table contains. It provides a way to ensure that all o
 data contained in a table is consistent, to determine what tile contains an arbitrary
 point, and to reconstiture blobs of data into a meaningful type of data.
 
+## Configuration
+
+Add an lcmap.data section to ~/.usgs/lcmap.ini
+
+```
+[lcmap.data]
+db-hosts = host1, host2, host3
+db-user = cluster-username
+db-pass = cluster-password
+spec-keyspace = lcmap
+spec-table = tile_specs
+scene-keyspace = lcmap
+scene-table = tile_scenes
+```
+
 
 ## Usage
 

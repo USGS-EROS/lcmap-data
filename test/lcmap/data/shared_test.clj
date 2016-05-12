@@ -1,9 +1,13 @@
 (ns lcmap.data.shared-test
   (:require [com.stuartsierra.component :as component]
             [lcmap.data.system :as system]
-            [lcmap.data.config :as config]))
+            [lcmap.data.config :as config]
+            [lcmap.config.helpers :as cfg-help]))
 
-(def cfg-opts {:path "test/lcmap.test.ini"})
+(def cfg-opts (merge config/defaults {:ini "test/lcmap.test.ini"}))
+
+(def cfg-data (-> (cfg-help/init-cfg cfg-opts) :lcmap.data))
+
 (def test-system (component/start (system/build cfg-opts)))
 
 (def L5 "test/data/ESPA/CONUS/ARD/LT50470272010327-SC20151230101810")

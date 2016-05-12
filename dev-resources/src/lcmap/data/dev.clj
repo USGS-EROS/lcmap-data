@@ -1,5 +1,6 @@
 (ns lcmap.data.dev
-  (:require [lcmap.data.system :as system]
+  (:require [lcmap.data.config :as config]
+            [lcmap.data.system :as system]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.tile :as tile]
             [lcmap.data.tile-spec :as tile-spec]
@@ -21,7 +22,7 @@
 
 (def sys nil)
 
-(def cfg-opts {})
+(def cfg-opts config/defaults)
 
 (defn init
   "Prepare the system without starting it"
