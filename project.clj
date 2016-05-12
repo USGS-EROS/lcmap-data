@@ -29,7 +29,7 @@
                  [me.raynes/fs "1.4.6"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]
-                 [clj-gdal "0.3.3"]]
+                 [clj-gdal "0.3.4"]]
   :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
             `lein lcmap --help`"}
