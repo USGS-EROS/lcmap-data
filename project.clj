@@ -36,9 +36,9 @@
             ^:pass-through-help
             ["run" "-m" "lcmap.data.cli"]}
   :repl-options {:init-ns lcmap.data.dev}
-  :test-selectors {:default (complement :integration)
-                   :slow    :integration
-                   :fast    (complement :integration)
+  :test-selectors {:default :unit
+                   :unit    (complement :integration)
+                   :db      :integration
                    :all     (constantly true)}
   :logger [lcmap.data :debug
            lcmap.data.components :debug
