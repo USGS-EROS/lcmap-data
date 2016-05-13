@@ -36,7 +36,7 @@
             ^:pass-through-help
             ["run" "-m" "lcmap.data.cli"]}
   :repl-options {:init-ns lcmap.data.dev}
-  :test-selectors {:default :unit
+  :test-selectors {:default (complement :integration)
                    :unit    (complement :integration)
                    :db      :integration
                    :all     (constantly true)}
@@ -46,4 +46,6 @@
               :plugins [[lein-kibit "0.1.2"]
                         [lein-codox "0.9.4"]]
               :aliases {"slamhound" ["run" "-m" "slam.hound"]}
-              :source-paths ["dev-resources/src"]}})
+              :source-paths ["dev-resources/src"]}
+             :testing
+             {:jvm-opts ["-Djava.library.path=/usr/lib/jni"]}})
