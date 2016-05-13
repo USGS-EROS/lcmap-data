@@ -40,11 +40,6 @@
                    :unit    (complement :integration)
                    :db      :integration
                    :all     (constantly true)}
-  :logger [lcmap.data :debug
-           lcmap.data.components :debug
-           com.datastax :error
-           co.paralleluniverse :error
-           org.gdal :error]
   :profiles {:dev
              {:dependencies [[org.clojure/tools.namespace "0.2.11"]
                              [slamhound "1.5.5"]]
