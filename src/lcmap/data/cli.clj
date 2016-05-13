@@ -164,4 +164,4 @@
   java.lang.Exception
   (fn [e & args]
     (log/error e)
-    (System/exit 1)))
+    (exit 1)))

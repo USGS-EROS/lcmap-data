@@ -20,7 +20,7 @@
   [db]
   (let [session (:session db)
         kn (get-in db [:cfg :lcmap.data :scene-keyspace])
-        tn (get-in db [:cfg :lcmap.data :scene-keyspace])
+        tn (get-in db [:cfg :lcmap.data :scene-table])
         columns (cql/describe-columns session kn tn)]
     (->> columns
          (map :column_name)
@@ -37,8 +37,9 @@
         kn (get-in db [:cfg :lcmap.data :scene-keyspace])
         tn (get-in db [:cfg :lcmap.data :scene-table])
         scene- (select-keys scene (column-names-memo db))]
+    (log/debug "find scene" scene-)
     (cql/use-keyspace session kn)
-    (cql/select session tn (query/where scene))))
+    (cql/select session tn (query/where scene-))))
 
 (defn save
   ""
@@ -47,8 +48,9 @@
         kn (get-in db [:cfg :lcmap.data :scene-keyspace])
         tn (get-in db [:cfg :lcmap.data :scene-table])
         scene- (select-keys scene (column-names-memo db))]
+    (log/debug "save scene" scene-)
     (cql/use-keyspace session kn)
-    (cql/insert-async session tn scene)))
+    (cql/insert-async session tn scene-)))
 
 (defn save-band
   ""
