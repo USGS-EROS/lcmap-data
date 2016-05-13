@@ -3,19 +3,19 @@
             [lcmap.data.shared-test :as shared]
             [lcmap.data.scene :as scene]))
 
-(deftest save-test
-  (testing "save"
-    (let [db (:database shared/test-system)
-          res (scene/save db {:source "scene-bar" :ubid "band-1"})]
-      (is (some? res)))))
-
-(deftest find-test
+(deftest ^:integration find-test
   (testing "find entire scene"
     (let [db (:database shared/test-system)
           res (scene/find db {:source "scene-foo"})]
       (is (some? res)))))
 
-(deftest column-names-test
+(deftest ^:integration save-test
+  (testing "save"
+    (let [db (:database shared/test-system)
+          res (scene/save db {:source "scene-bar" :ubid "band-1"})]
+      (is (some? res)))))
+
+(deftest ^:integration column-names-test
   (testing "column names for scene"
     (let [db (:database shared/test-system)
           res (scene/column-names db)]

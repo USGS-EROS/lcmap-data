@@ -8,7 +8,7 @@
 
 ;;
 
-(deftest find-test
+(deftest ^:integration find-test
   (testing "find individual tile specs"
     (let [db (:database shared/test-system)
           s1 (tile-spec/find db {:ubid "test/1"})
@@ -26,7 +26,7 @@
       (is (= 3 (count ts))))))
 
 
-(deftest save-test
+(deftest ^:integration save-test
   (testing "saving tile data"
     ;; XXX Saving a tile-spec does not enforce any sort of
     ;; validation. This is more of an AS-IS test, that can
