@@ -1,7 +1,7 @@
 language: clojure
 before_install:
-  - sudo apt-add-repository ppa:ubuntugis/ppa
-  - sudo apt-get install libgdal-dev libgdal-java
+  - sudo apt-add-repository ppa:ubuntugis/ppa -y
+  - sudo apt-get install libgdal-dev libgdal-java -y
 before_script: test/support/setup_deps.sh
 script:
   - make check
@@ -14,7 +14,7 @@ jdk:
 #addons:
 #  apt:
 #    sources:
-#      - 
+#      -
 notifications:
   email:
       # the following won't work until the Travis
@@ -26,4 +26,3 @@ notifications:
     rooms:
       - lcmap:UTqlh9PfPVomfpli10WKyZoh#cicd
       - lcmap:UTqlh9PfPVomfpli10WKyZoh#data
-
