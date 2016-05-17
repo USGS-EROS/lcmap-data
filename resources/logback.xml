@@ -1,4 +1,4 @@
-<configuration debug="true">
+<configuration debug="false">
 
   <timestamp key="now" datePattern="yyyyMMdd-HHmmss"/>
 
@@ -27,9 +27,12 @@
     </encoder>
   </appender>
 
-  <root level="DEBUG">
+  <root level="OFF">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="CHECKSUM" />
   </root>
+
+  <logger name="ch.qos.logback" level="OFF">
+  </logger>
 
 </configuration>
