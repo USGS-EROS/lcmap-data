@@ -85,3 +85,8 @@
         (log/debug "Cleaning up" td#)
         (fs/delete tf#)
         (fs/delete-dir td#)))))
+
+(defn add-shutdown-handler [func]
+  (.addShutdownHook (Runtime/getRuntime)
+                    (Thread. func)))
+

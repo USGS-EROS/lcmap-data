@@ -13,20 +13,42 @@
             [lcmap.config.components.config :as config]
             [lcmap.data.components.gdal :as gdal]
             [lcmap.data.components.database :as database]
-            [lcmap.data.components.logger :as logger]))
+            [lcmap.data.components.logger :as logger]
+            [lcmap.data.config]))
 
-(defn build [opts]
-  (log/info "Starting system ...")
-  (component/system-map
-    :cfg     (component/using
-               (config/new-configuration opts)
-               [])
-    :logger   (component/using
-                (logger/new-logger)
-                [:cfg])
-    :gdal     (component/using
-                (gdal/new-gdal)
-                [:cfg])
-    :database (component/using
-                (database/new-database)
-                [:cfg])))
+(defn build
+  ([]
+    (build lcmap.data.config/defaults))
+  ([opts]
+    (log/info "Starting system ...")
+    (component/system-map
+      :cfg     (component/using
+                 (config/new-configuration opts)
+                 [])
+      :logger   (component/using
+                  (logger/new-logger)
+                  [:cfg])
+      :gdal     (component/using
+                  (gdal/new-gdal)
+                  [:cfg])
+      :database (component/using
+                  (database/new-database)
+                  [:cfg]))))
+
+(defn stop [system component-key]
+  (->> system
+       (component-key)
+       (component/stop)
+       (assoc system component-key)))
+
+(defn start [system component-key]
+  (->> system
+       (component-key)
+       (component/start)
+       (assoc system component-key)))
+
+(defn restart [system component-key]
+  (-> system
+      (stop component-key)
+      (start component-key)))
+
