@@ -1,3 +1,5 @@
+sudo: required
+dist: trusty
 language: clojure
 before_install:
   - sudo apt-add-repository ppa:ubuntugis/ppa -y
@@ -10,12 +12,16 @@ jdk:
   - oraclejdk8
   #- oraclejdk7
   #- openjdk6
-  - openjdk7
+  #- openjdk7
   #- openjdk8
 #addons:
 #  apt:
 #    sources:
 #      -
+branches:
+  only:
+    - master
+    - /^topic/
 notifications:
   email:
       # the following won't work until the Travis
