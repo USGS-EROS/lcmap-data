@@ -16,6 +16,10 @@ jdk:
 #  apt:
 #    sources:
 #      -
+branches:
+  only:
+    - master
+    - /^topic/
 notifications:
   email:
       # the following won't work until the Travis
