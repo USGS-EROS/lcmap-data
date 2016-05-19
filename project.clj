@@ -24,7 +24,7 @@
                  [me.raynes/fs "1.4.6"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]
-                 [clj-gdal "0.3.4"]
+                 [clj-gdal/clj-gdal "0.3.5-SNAPSHOT"]
                  ;; XXX note that we may still need to explicitly include the
                  ;; Apache Java HTTP client, since the version used by the LCMAP
                  ;; client is more recent than that used by Chas Emerick's
