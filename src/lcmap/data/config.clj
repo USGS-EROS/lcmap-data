@@ -1,6 +1,6 @@
 (ns lcmap.data.config
-  "Provides schemas for validating "
-  (:require [lcmap.config.helpers :refer :all]
+  "Provides schemas for validating configuration data and values."
+  (:require [lcmap.config.helpers :as helpers]
             [schema.core :as schema]))
 
 ;;; configuration schemas
@@ -26,7 +26,7 @@
 ;;; Default parameters for use with lcmap.config.helpers/init-cfg
 
 (def defaults
-  {:ini *lcmap-config-ini*
+  {:ini helpers/*lcmap-config-ini*
    :args *command-line-args*
    :spec opt-spec
    :schema cfg-schema})

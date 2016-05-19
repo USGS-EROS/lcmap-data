@@ -9,11 +9,6 @@
                  [org.clojure/data.zip "0.1.1"]
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/tools.cli "0.3.3"]
-                 ;; environment/config
-                 [gov.usgs.eros/lcmap-config "0.5.0-SNAPSHOT"]
-                 ;; logging
-                 [twig "0.1.6"]
-                 [janino "2.5.10"]
                  ;; checksum (for debug logging)
                  [pandect "0.5.4"]
                  ;; error handling
@@ -29,7 +24,18 @@
                  [me.raynes/fs "1.4.6"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]
-                 [clj-gdal "0.3.4"]]
+                 [clj-gdal "0.3.4"]
+                 ;; XXX note that we may still need to explicitly include the
+                 ;; Apache Java HTTP client, since the version used by the LCMAP
+                 ;; client is more recent than that used by Chas Emerick's
+                 ;; 'friend' library (the conflict causes a compile error which
+                 ;; is worked around by explicitly including Apache Java HTTP
+                 ;; client library).
+                 ;; XXX temp dependencies:
+                 [org.apache.httpcomponents/httpclient "4.5"]
+                 ;; LCMAP Components
+                 [gov.usgs.eros/lcmap-config "0.5.0-SNAPSHOT"]
+                 [gov.usgs.eros/lcmap-logger "0.5.0-SNAPSHOT"]]
   :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
             `lein lcmap --help`"}

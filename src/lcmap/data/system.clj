@@ -13,8 +13,8 @@
             [lcmap.config.components.config :as config]
             [lcmap.data.components.gdal :as gdal]
             [lcmap.data.components.database :as database]
-            [lcmap.data.components.logger :as logger]
-            [lcmap.data.config]))
+            [lcmap.data.config]
+            [lcmap.logger.components.logger :as logger]))
 
 (defn build
   ([]
