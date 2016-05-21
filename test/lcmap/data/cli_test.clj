@@ -6,8 +6,8 @@
 
 (deftest exec-cql-test
   (let [sys shared/test-system
-        missing {:arguments ["--file" "test/schema.cql.missing"]}
-        present {:arguments ["--file" "test/schema.cql"]}]
+        missing {:arguments ["--file" "test/support/fake-schema.cql.missing"]}
+        present {:arguments ["--file" "test/support/fake-schema.cql"]}]
     ;; Use redefs to prevent system from exiting during exception
     ;; handling; the CLI ns has a very broad exception handler that
     ;; exits if an error is encountered (by design). Also, prevent

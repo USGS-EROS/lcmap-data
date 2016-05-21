@@ -15,8 +15,13 @@
                 :scene-keyspace schema/Str
                 schema/Keyword  schema/Str}})
 
+(def logging-schema
+  {:lcmap.logging {:level schema/Str
+                   :namespaces [schema/Str]}})
+
 (def cfg-schema
   (merge data-schema
+         logging-schema
          {schema/Keyword schema/Any}))
 
 ;;; cli opt-specs placeholder

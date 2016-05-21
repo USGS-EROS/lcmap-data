@@ -10,8 +10,7 @@
             [dire.core :refer [with-handler!]])
   (:import  [com.datastax.driver.core.exceptions NoHostAvailableException]))
 
-(def cfg-opts (merge config/defaults {:ini "test/lcmap.test.ini"}))
-(def cfg-data (-> (cfg-help/init-cfg cfg-opts) :lcmap.data))
+(def cfg-opts (merge config/defaults {:ini "test/support/lcmap.test.ini"}))
 
 (with-handler! #'component/start
   "Build systems that only run unit tests will fail to start the db

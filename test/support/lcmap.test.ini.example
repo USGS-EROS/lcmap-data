@@ -1,0 +1,12 @@
+[lcmap.data]
+db-hosts = localhost
+db-user = cassandra
+db-pass = cassandra
+spec-keyspace = lcmap_test
+spec-table = tile_specs
+scene-keyspace = lcmap_test
+scene-table = tile_scenes
+
+[lcmap.logging]
+level = debug
+namespaces = lcmap.config,lcmap.data

@@ -35,3 +35,12 @@ run:
 
 test-auth-server:
 	@cd test/support/auth-server && lein with-profile +dev run
+
+setup-dev:
+	lein lcmap run-cql --file resources/schema.cql
+
+setup-test:
+	cp test/support/lcmap.test.ini.example test/support/lcmap.test.ini
+	lein lcmap run-cql --file resources/schema-test.cql
+
+setup: setup-dev setup-test
