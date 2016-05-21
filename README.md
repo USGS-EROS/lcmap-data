@@ -73,6 +73,14 @@ lein lcmap make-tiles ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hos
 
 Ingesting tiles will gracefully fail if you attempt to ingest data that does not conform to the corresponding tile specification. Currently, the tiling command only works with archives, it does not handle paths to decompressed archives yet.
 
+## Development
+
+This will create a separate keyspace for dev and test. It will also create a test specific configuration from an example in `test/support/lcmap.test.ini`.
+
+```
+make setup
+```
+
 
 ## License
 
