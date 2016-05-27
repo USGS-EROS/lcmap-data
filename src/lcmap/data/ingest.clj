@@ -67,7 +67,7 @@
     (log/debug "checking fill ...")
     (and (some? fill)
          (some? data)
-         (not= 0 (.compareTo data fill)))))
+         (= 0 (.compareTo data fill)))))
 
 (defn locate-fn
   "Build projection coordinate point calculator for GDAL dataset."
