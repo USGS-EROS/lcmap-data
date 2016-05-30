@@ -6,8 +6,14 @@
             [clojure.tools.logging :as log]
             [lcmap.data.tile-spec :as tile-spec]
             [gdal.band])
+  (:import [org.apache.commons.codec.binary Base64])
   (:refer-clojure :exclude [find])
   (:gen-class))
+
+;;;
+
+(defn base64-decode [encoded-data]
+  (Base64/decodeBase64 encoded-data))
 
 ;;; Database functions
 
@@ -42,12 +48,15 @@
 
 (defn save
   "Insert tile data (asynchronously)."
-  [db keyspace table tile]
+  [db tile]
   (log/debug "save tile" tile)
-  (let [session (get-in db [:session])]
+  (let [session   (get-in db [:session])
+        spec      (first (tile-spec/find db (select-keys tile [:ubid])))
+        keyspace  (:keyspace_name spec)
+        table     (:table_name spec)]
     (cql/use-keyspace session keyspace)
-    (cql/insert-async session table tile))
-  tile)
+    (cql/insert session table (assoc tile :data (base64-decode (tile :data))))
+    tile))
 
 ;;; Dataset functions
 
