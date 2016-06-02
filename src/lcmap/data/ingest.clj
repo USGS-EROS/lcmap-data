@@ -12,8 +12,7 @@
             [dire.core :refer [with-handler!]]
             [gdal.core]
             [gdal.dataset]
-            [pandect.algo.md5 :as md5]
-            :reload))
+            [pandect.algo.md5 :as md5]))
 
 (defn +spec
   "Retrieve a spec (for the given UBID) and add it to the band. This assumes
