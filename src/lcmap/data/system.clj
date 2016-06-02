@@ -13,24 +13,24 @@
             [lcmap.config.components.config :as config]
             [lcmap.data.components.gdal :as gdal]
             [lcmap.data.components.database :as database]
-            [lcmap.data.config]
+            [lcmap.data.config :as data-cfg]
             [lcmap.logger.components.logger :as logger]))
 
 (defn build
   ([]
-    (build lcmap.data.config/defaults))
+    (build data-cfg/defaults))
   ([opts]
     (log/info "Starting system ...")
     (component/system-map
-      :cfg     (component/using
-                 (config/new-configuration opts)
-                 [])
+      :cfg      (component/using
+                  (config/new-configuration opts)
+                  [])
       :logger   (component/using
                   (logger/new-logger)
                   [:cfg])
       :gdal     (component/using
                   (gdal/new-gdal)
-                  [:cfg])
+                 [:cfg])
       :database (component/using
                   (database/new-database)
                   [:cfg]))))
