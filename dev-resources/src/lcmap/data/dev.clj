@@ -55,6 +55,6 @@
   []
   (stop)
   (deinit)
-  (refresh :after 'lcmap.data.dev/run))
+  (refresh-all :after 'lcmap.data.dev/run))
 
 (def reload #'reset)
