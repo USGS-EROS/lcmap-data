@@ -4,8 +4,7 @@
             [clojurewerkz.cassaforte.query :as query]
             [clojure.tools.logging :as log]
             [gdal.core]
-            [gdal.dataset]
-            :reload)
+            [gdal.dataset])
   (:refer-clojure :exclude [find]))
 
 (defn column-names
