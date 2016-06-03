@@ -25,6 +25,7 @@
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]
                  [clj-gdal "0.3.5-SNAPSHOT"]
+                 [clj-time/clj-time "0.11.0"]
                  ;; XXX note that we may still need to explicitly include the
                  ;; Apache Java HTTP client, since the version used by the LCMAP
                  ;; client is more recent than that used by Chas Emerick's
@@ -54,5 +55,4 @@
                         [lein-codox "0.9.4"]]
               :aliases {"slamhound" ["run" "-m" "slam.hound"]}
               :source-paths ["dev-resources/src"]}
-             :testing
-             {:jvm-opts ["-Djava.library.path=/usr/lib/jni"]}})
+             :testing {}})
