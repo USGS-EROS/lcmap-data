@@ -1,3 +1,12 @@
+[lcmap.client]
+username = alice
+password = secret
+version = 0.5
+endpoint = http://localhost:1077
+content-type = json
+log-level = debug
+logging-namespaces = lcmap-client
+
 [lcmap.data]
 db-hosts = localhost
 db-user = cassandra
@@ -7,6 +16,31 @@ spec-table = tile_specs
 scene-keyspace = lcmap_test
 scene-table = tile_scenes
 
+[lcmap.event]
+host = localhost
+port = 5672
+vhost = /
+default-exchange-name = lcmap.event
+default-queue-name = lcmap.event-stream
+
+[lcmap.rest]
+ip = localhost
+port = 1077
+auth-backend = usgs
+auth-endpoint = http://localhost:8888/api
+auth-login-resource = /auth
+auth-user-resource = /me
+
+[lcmap.see]
+db-hosts = localhost
+db-user = cassandra
+db-pass = cassandra
+job-namespace = lcmap
+job-table = jobs
+
+[lcmap.config]
+log-level = debug
+
 [lcmap.logging]
 level = debug
-namespaces = lcmap.config,lcmap.data
+namespaces = lcmap.rest,lcmap.config,lcmap.event,lcmap.data,lcmap.event
