@@ -18,6 +18,8 @@ jdk:
 #  apt:
 #    sources:
 #      -
+services:
+  - cassandra
 branches:
   only:
     - master
