@@ -46,7 +46,7 @@ Three commands are used to prepare a schema and import data into a Cassandra clu
 Create a keyspace, tile spec table, and tile table.
 
 ```
-lein lcmap run-cql --file resources/schema.cql --hosts 192.168.33.20
+lein lcmap run-cql --file resources/schema.cql
 ```
 
 ### 2. Create Tile Specs
@@ -58,17 +58,17 @@ Eventually, these will be required command line parameters.
 You must do this once for Landsat 5, 7, and 8 archives.
 
 ```
-lein lcmap make-specs ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20 --tile-keyspace lcmap --tile-table conus --tile-size 256:256
-lein lcmap make-specs ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20 --tile-keyspace lcmap --tile-table conus --tile-size 256:256
-lein lcmap make-specs ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20 --tile-keyspace lcmap --tile-table conus --tile-size 256:256
+lein lcmap make-specs ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --tile-keyspace lcmap --tile-table conus --tile-size 128:128
+lein lcmap make-specs ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --tile-keyspace lcmap --tile-table conus --tile-size 128:128
+lein lcmap make-specs ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --tile-keyspace lcmap --tile-table conus --tile-size 128:128
 ```
 
 ### 3. Create Tiles
 
 ```
-lein lcmap make-tiles ~/Downloads/LC80460272013104-SC20151208193402.tar.gz --hosts 192.168.33.20
-lein lcmap make-tiles ~/Downloads/LE70460272002354-SC20151208192943.tar.gz --hosts 192.168.33.20
-lein lcmap make-tiles ~/Downloads/LT50460271992159-SC20151208192831.tar.gz --hosts 192.168.33.20
+lein lcmap make-tiles ~/Downloads/LC80460272013104-SC20151208193402.tar.gz
+lein lcmap make-tiles ~/Downloads/LE70460272002354-SC20151208192943.tar.gz
+lein lcmap make-tiles ~/Downloads/LT50460271992159-SC20151208192831.tar.gz
 ```
 
 Ingesting tiles will gracefully fail if you attempt to ingest data that does not conform to the corresponding tile specification. Currently, the tiling command only works with archives, it does not handle paths to decompressed archives yet.
