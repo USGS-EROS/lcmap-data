@@ -170,7 +170,7 @@
   (gdal.core/with-dataset [dataset (:path band)]
     (let [tile-xf (comp (map #(merge band %))
                         (map locate)
-                        (remove fill?))
+                        (filter fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
       (log/info "processing band started ..." (:ubid band))
