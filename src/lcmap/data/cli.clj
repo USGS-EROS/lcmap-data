@@ -129,7 +129,6 @@
 (defn run
   "Init system and invoke function for user specified command"
   [cli-args]
-  (twig/set-level! ['lcmap.data] :info) ;; XXX why?
   (let [cmd (-> cli-args :arguments first)
         cfg-opts (merge config/defaults {:args (cli-args :arguments)})
         system (component/start (sys/build cfg-opts))]
