@@ -14,7 +14,7 @@
   (stop [component]
     (log/info "Stopping DB component ...")
     (try
-      (let [session (component :session)]
+      (let [session (get-in component [:session])]
         (client/disconnect session))
       (catch Exception ex
         (log/error "Could not disconnect from session")))
