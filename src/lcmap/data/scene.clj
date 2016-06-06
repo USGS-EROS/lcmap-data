@@ -48,7 +48,7 @@
         kn (get-in db [:cfg :lcmap.data :scene-keyspace])
         tn (get-in db [:cfg :lcmap.data :scene-table])
         scene- (select-keys scene (column-names-memo db))]
-    (log/debug "save scene" scene-)
+    (log/debug "save scene" kn tn scene-)
     (cql/use-keyspace session kn)
     (cql/insert-async session tn scene-)))
 
@@ -57,4 +57,5 @@
   [db band]
   (let [scene (select-keys band (column-names-memo db))
         global_metadata (band :global_metadata)]
+    (log/debug "save-band")
     (save db (assoc scene :global_metadata (json/json-str global_metadata)))))

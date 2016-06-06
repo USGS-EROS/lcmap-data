@@ -174,8 +174,8 @@
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
       (log/info "processing band started ..." (:ubid band))
-      (dorun (pmap #(process-tile db %) tiles))
       (scene/save-band db band)
+      (dorun (pmap #(process-tile db %) tiles))
       (log/info "processing band done ..." (:ubid band)))))
 
 (defn process-scene

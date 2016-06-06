@@ -8,7 +8,7 @@
   (:import  [com.datastax.driver.core.exceptions NoHostAvailableException]))
 
 (with-handler! #'component/start
-  [NoHostAvailableException]
+  NoHostAvailableException
   (fn [e & args]
     (logging/warn "no db host -- not unusual")
     args))

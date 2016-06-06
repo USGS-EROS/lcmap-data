@@ -6,16 +6,10 @@
             [clojure.tools.logging :as log]
             [lcmap.data.tile-spec :as tile-spec]
             [gdal.band])
-  (:import [org.apache.commons.codec.binary Base64])
   (:refer-clojure :exclude [find])
   (:gen-class))
 
-;;;
-
-(defn base64-decode [encoded-data]
-  (Base64/decodeBase64 encoded-data))
-
-;;; Database functions
+;;; Helper functions
 
 (defn snap
   "Transform an arbitrary projection system coordinate (x,y) into the
@@ -26,6 +20,8 @@
         ty (- y (mod (+ y shift_y) tile_y))]
     (log/debug "Snap: (%d,%d) to (%d,%d)" x y tx ty)
     [(long tx) (long ty)]))
+
+;;; Database functions
 
 (defn find
   "Query DB for all tiles that match the UBID, contain (x,y), and
@@ -47,16 +43,18 @@
     (cql/select session table where)))
 
 (defn save
-  "Insert tile data (asynchronously)."
-  [db tile]
-  (log/debug "save tile" tile)
-  (let [session   (get-in db [:session])
-        spec      (first (tile-spec/find db (select-keys tile [:ubid])))
-        keyspace  (:keyspace_name spec)
-        table     (:table_name spec)]
-    (cql/use-keyspace session keyspace)
-    (cql/insert session table (assoc tile :data (base64-decode (tile :data))))
-    tile))
+  "Insert tile."
+  ([db tile]
+   (let [spec      (first (tile-spec/find db (select-keys tile [:ubid])))
+         keyspace  (:keyspace_name spec)
+         table     (:table_name spec)]
+     (save keyspace table tile)))
+  ([db keyspace table tile]
+   (let [session (get-in db [:session])]
+     (log/debug "save tile" tile)
+     (cql/use-keyspace session keyspace)
+     (cql/insert-async session table tile)
+     tile)))
 
 ;;; Dataset functions
 
