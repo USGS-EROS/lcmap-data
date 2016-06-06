@@ -49,7 +49,7 @@ CREATE INDEX ubid_ix ON lcmap.tile_specs (ubid);
 
 -- Scene Inventory
 
-CREATE TABLE lcmap.scenes (
+CREATE TABLE lcmap.tile_scenes (
     source text,
     ubid text,
     global_metadata text static,
