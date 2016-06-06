@@ -16,7 +16,7 @@
             [clojurewerkz.cassaforte.cql :as cql]
             [clojure.tools.logging :as log]
             [twig.core :as logger]
-            [clojure.tools.namespace.repl :refer [refresh refresh-all]]
+            [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
             [leiningen.core.project :as lein-prj]))
 
@@ -55,6 +55,6 @@
   []
   (stop)
   (deinit)
-  (refresh-all :after 'lcmap.data.dev/run))
+  (repl/refresh-all :after 'lcmap.data.dev/run))
 
 (def reload #'reset)
