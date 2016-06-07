@@ -6,8 +6,7 @@
    - logger enables and adjusts log levels.
    - gdal provides access to raster data.
    - database maintains a session used to store and retrieve tiles
-     and tile-specs.
-  "
+     and tile-specs."
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
             [lcmap.config.components.config :as config]
@@ -51,4 +50,3 @@
   (-> system
       (stop component-key)
       (start component-key)))
-

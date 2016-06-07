@@ -1,4 +1,5 @@
 (ns lcmap.data.components.database
+  ""
   (:require [clojure.tools.logging :as log]
             [clojurewerkz.cassaforte.client :as client]
             [com.stuartsierra.component :as component]

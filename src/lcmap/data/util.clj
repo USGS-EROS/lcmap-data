@@ -1,12 +1,5 @@
-;;;; LCMAP Data util namespace
-;;;;
-;;;; This namespace defines a few utility type functions:
-;;;; 1. Working with compressed archives (.tar.gz, etc...)
-;;;; 2. Meddling with projection information.
-;;;;
-;;;; Eventually, these functions may find there way out of
-;;;; this namespace into a more specific one.
 (ns lcmap.data.util
+  ""
   (:require [me.raynes.fs :as fs]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
@@ -89,4 +82,3 @@
 (defn add-shutdown-handler [func]
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. func)))
-
