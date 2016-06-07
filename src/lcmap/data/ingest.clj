@@ -63,7 +63,6 @@
   [tile]
   (let [data (:data tile)
         fill (:fill tile)]
-    (log/debug "checking fill ...")
     (and (some? fill)
          (some? data)
          (= 0 (.compareTo data fill)))))
@@ -170,7 +169,7 @@
   (gdal.core/with-dataset [dataset (:path band)]
     (let [tile-xf (comp (map #(merge band %))
                         (map locate)
-                        (filter fill?))
+                        (remove fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
       (log/info "processing band started ..." (:ubid band))
