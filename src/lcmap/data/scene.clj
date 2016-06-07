@@ -39,7 +39,8 @@
         scene- (select-keys scene (column-names-memo db))]
     (log/debug "find scene" scene-)
     (cql/use-keyspace session kn)
-    (cql/select session tn (query/where scene-))))
+    (map #(->> % :global_metadata json/read-str)
+         (cql/select session tn (query/where scene-)))))
 
 (defn save
   ""
