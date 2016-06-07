@@ -45,15 +45,17 @@
 (defn save
   "Insert tile."
   ([db tile]
-   (let [spec      (first (tile-spec/find db (select-keys tile [:ubid])))
+   (let [ubid      (select-keys tile [:ubid])
+         spec      (first (tile-spec/find db {:ubid ubid}))
          keyspace  (:keyspace_name spec)
          table     (:table_name spec)]
+     (log/debug ubid spec keyspace table)
      (save keyspace table tile)))
   ([db keyspace table tile]
    (let [session (get-in db [:session])]
      (log/debug "save tile" tile)
      (cql/use-keyspace session keyspace)
-     (cql/insert-async session table tile)
+     (cql/insert session table tile)
      tile)))
 
 ;;; Dataset functions
