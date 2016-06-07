@@ -193,6 +193,7 @@
 (with-handler! #'process-tile
   java.lang.Exception
   (fn [e & [db tile]]
+    (log/error e)
     (log/error "Failed to process tile" tile)))
 
 (with-handler! #'dataset->tiles

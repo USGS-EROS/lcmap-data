@@ -29,7 +29,7 @@
         spec-table    (get-in db [:cfg :lcmap.data :spec-table])]
     ;; XXX save ignores param keys that do not correspond to
     ;;     a column, should find do the same?
-    (log/debugf "Find tile-spec: %s" params)
+    (log/debugf "Find tile-spec: %s %s %s" params spec-keyspace spec-table)
     (cql/use-keyspace session spec-keyspace)
     (cql/select session spec-table
                 (query/where params)
