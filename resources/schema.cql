@@ -41,15 +41,15 @@ CREATE TABLE IF NOT EXISTS lcmap.tile_specs (
     data_mask map<int, text>,
     PRIMARY KEY ((keyspace_name, table_name), ubid));
 
-CREATE INDEX satellite_ix ON lcmap.tile_specs (satellite);
-CREATE INDEX instrument_ix ON lcmap.tile_specs (instrument);
-CREATE INDEX band_product_ix ON lcmap.tile_specs (band_product);
-CREATE INDEX band_name_ix ON lcmap.tile_specs (band_name);
-CREATE INDEX ubid_ix ON lcmap.tile_specs (ubid);
+CREATE INDEX IF NOT EXISTS satellite_ix ON lcmap.tile_specs (satellite);
+CREATE INDEX IF NOT EXISTS instrument_ix ON lcmap.tile_specs (instrument);
+CREATE INDEX IF NOT EXISTS band_product_ix ON lcmap.tile_specs (band_product);
+CREATE INDEX IF NOT EXISTS band_name_ix ON lcmap.tile_specs (band_name);
+CREATE INDEX IF NOT EXISTS ubid_ix ON lcmap.tile_specs (ubid);
 
 -- Scene Inventory
 
-CREATE TABLE lcmap.tile_scenes (
+CREATE TABLE IF NOT EXISTS lcmap.tile_scenes (
     source text,
     ubid text,
     global_metadata text static,
@@ -58,7 +58,7 @@ CREATE TABLE lcmap.tile_scenes (
 
 
 -- Job Management (Science Model Execution Tracking)
-CREATE TABLE lcmap.job (
+CREATE TABLE IF NOT EXISTS lcmap.job (
     job_id text PRIMARY KEY,
     status int,
     science_model_name text,
@@ -71,7 +71,7 @@ CREATE TABLE lcmap.job (
   AND COMMENT = 'Science model job results tracking and linking.';
 
 -- Results table for sample model
-CREATE TABLE lcmap.samplemodel (
+CREATE TABLE IF NOT EXISTS lcmap.samplemodel (
     result_id text PRIMARY KEY,
     result text
 
@@ -79,7 +79,7 @@ CREATE TABLE lcmap.samplemodel (
   AND COMMENT = 'Sample model results table.';
 
 -- Results table for CCDC model
-CREATE TABLE lcmap.ccdcmodel (
+CREATE TABLE IF NOT EXISTS lcmap.ccdcmodel (
     result_id text PRIMARY KEY,
     result text
 
