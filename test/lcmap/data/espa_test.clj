@@ -3,9 +3,13 @@
             [lcmap.data.shared-test :as shared]
             [lcmap.data.espa :as espa]))
 
+(def xml-paths {:L8 "test/data/ESPA/CONUS/metadata/LC80460272015302LGN01.xml"
+                :L7 "test/data/ESPA/CONUS/metadata/LE70460272010328EDC00.xml"
+                :L5 "test/data/ESPA/CONUS/metadata/LT50470272010327EDC00.xml"})
+
 (deftest load-test
   (testing "parsing global and band metadata together"
-    (let [bands (espa/load shared/L8)]
+    (let [bands (espa/load (:L8 xml-paths))]
       (is (every? :global_metadata bands))
       (is (every? :ubid bands))
       (is (every? :path bands))
@@ -13,7 +17,7 @@
 
 (deftest load-global-metadata-test
   (testing "parsing global metadata"
-    (let [global (espa/load-global-metadata shared/L8)
+    (let [global (espa/load-global-metadata (:L8 xml-paths))
           actual (set (keys global))
           expected #{:provider :satellite :instrument
                      :acquired :solar_angles :source
@@ -21,7 +25,7 @@
       (is (empty? (clojure.set/difference actual expected))))))
 
 (deftest load-bands-test
-  (let [bands (espa/load shared/L8)
+  (let [bands (espa/load (:L8 xml-paths))
         masks (filter (comp seq :data_mask) bands)]
     (testing "number of bands"
       (is (= (count bands) 20)))

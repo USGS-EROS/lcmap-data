@@ -7,19 +7,14 @@
             [lcmap.config.helpers :as config-helpers])
   (:import  [com.datastax.driver.core.exceptions NoHostAvailableException]))
 
-(with-handler! #'component/start
-  NoHostAvailableException
-  (fn [e & args]
-    (logging/warn "no db host -- not unusual")
-    args))
-
 (def cfg-file (clojure.java.io/file config-helpers/*lcmap-config-dir* "lcmap.test.ini"))
 
 (def cfg-opts (merge config/defaults {:ini cfg-file}))
 
-(def test-system (-> (system/build cfg-opts)
-                     (component/start)))
-
-(def L5 "test/data/ESPA/CONUS/ARD/LT50470272010327-SC20151230101810")
-(def L7 "test/data/ESPA/CONUS/ARD/LC80460272015302-SC20151230102540")
-(def L8 "test/data/ESPA/CONUS/ARD/LC80460272015302-SC20151230102540")
+(defmacro with-system
+  [[binding cfg-opts] & body]
+  `(let [~binding (component/start (system/build ~cfg-opts))]
+     (try
+       (do ~@body)
+       (finally
+         (component/stop ~binding)))))

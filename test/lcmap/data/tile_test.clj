@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [lcmap.data.shared-test :as shared]
             [lcmap.data.tile :as tile]
-            [lcmap.data.tile-spec :as tile-spec]
-            :reload))
+            [lcmap.data.tile-spec :as tile-spec]))
 
 (deftest ^:unit snap-test
   (testing "without shift"
