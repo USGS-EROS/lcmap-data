@@ -27,20 +27,20 @@ deps-tree:
 loc:
 	@find src -name "*.clj" -exec cat {} \;|wc -l
 
-check:
-	@lein with-profile +testing,-dev test
+check: setup-test
+	@lein with-profile
 
 run:
 	-@lein trampoline run
-
-test-auth-server:
-	@cd test/support/auth-server && lein with-profile +dev run
 
 setup-dev:
 	lein lcmap run-cql --file resources/schema.cql
 
 setup-test:
-	cp test/support/lcmap.test.ini.example test/support/lcmap.test.ini
-	lein lcmap run-cql --file resources/schema-test.cql
+	lein lcmap run-cql --file resources/schema.cql
+	lein lcmap make-specs test/data/ESPA/CONUS/ARD/LT50460282002026-SC20160608172634.tar.gz --tile-table conus --tile-keyspace lcmap --tile-size 128:128
+	lein lcmap make-specs test/data/ESPA/CONUS/ARD/LE70460272002002-SC20160608172749.tar.gz --tile-table conus --tile-keyspace lcmap --tile-size 128:128
+	lein lcmap make-tiles test/data/ESPA/CONUS/ARD/*.tar.gz
+
 
 setup: setup-dev setup-test
