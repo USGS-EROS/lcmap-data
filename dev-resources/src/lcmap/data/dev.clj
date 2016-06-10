@@ -4,31 +4,21 @@
             [lcmap.data.system :as system]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.tile :as tile]
-            [lcmap.data.tile-spec :as tile-spec]
+            [lcmap.data.tile-spec :as spec]
             [lcmap.data.scene :as scene]
             [lcmap.data.util :as util]
             [lcmap.data.espa  :as espa]
-            [gdal.core :as gc]
-            [gdal.dataset :as gd]
-            [gdal.band :as gb]
-            [clojurewerkz.cassaforte.client :as cc]
-            [clojurewerkz.cassaforte.query :as cq]
-            [clojurewerkz.cassaforte.utils :as cu]
-            [clojurewerkz.cassaforte.cql :as cql]
-            [clojure.tools.logging :as log]
-            [twig.core :as logger]
             [clojure.tools.namespace.repl :as repl]
-            [com.stuartsierra.component :as component]
-            [leiningen.core.project :as lein-prj]))
+            [com.stuartsierra.component :as component]))
 
 (def sys nil)
 
-(def cfg-opts config/defaults)
+(def cfg config/defaults)
 
 (defn init
   "Prepare the system without starting it"
   []
-  (alter-var-root #'sys #(when-not % (system/build cfg-opts))))
+  (alter-var-root #'sys #(when-not % (system/build cfg))))
 
 (defn start
   "Start the system (if it exists)"
@@ -56,6 +46,27 @@
   []
   (stop)
   (deinit)
-  (repl/refresh-all :after 'lcmap.data.dev/run))
+  (repl/refresh :after 'lcmap.data.dev/run))
 
 (def reload #'reset)
+
+
+(comment "Some basic usage examples."
+
+  ;; Starting the system
+  (run)
+
+  ;; Getting some specs
+  (let [query {:ubid "LANDSAT_5/TM/sr_band1"}]
+    (spec/find (:database sys) {:ubid "LANDSAT_5/TM/sr_band1"}))
+
+  ;; Getting some tiles
+  (let [query {:x -2062080
+               :y 2952960
+               :acquired ["2002-01-01" "2003-01-01"]
+               :ubid "LANDSAT_5/TM/sr_band1"}]
+    (tile/find (:database sys) query))
+
+  ;; Getting scene metadata
+  (let [query {:source "LT50470282002001LGS01"}]
+    (scene/find (:database sys) query)))
