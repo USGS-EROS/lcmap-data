@@ -55,4 +55,4 @@
                         [lein-codox "0.9.4"]]
               :aliases {"slamhound" ["run" "-m" "slam.hound"]}
               :source-paths ["dev-resources/src"]}
-             :testing {}})
+             :test {}})
