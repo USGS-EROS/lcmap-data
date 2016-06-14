@@ -114,7 +114,7 @@
         "  make-specs   Extract an ESPA archive tile specification, saving to the database"
         "  make-tiles   Ingest tile data "
         "  run-cql      Run a Cassandra query stored in CQL file"
-        "  show-config  Display basic tool info such as configuration data"]
+        ""]
        (string/join \newline)))
 
 (defn exit
@@ -160,7 +160,7 @@
 ;;; exception handlers
 
 (with-handler! #'-main
-  java.lang.Exception
+  java.lang.RuntimeException
   (fn [e & args]
     (log/error e)
     (exit 1)))
