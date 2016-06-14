@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# This is a convenient way to remove stopped docker containers
-
-docker rm `docker ps --no-trunc -aq`
