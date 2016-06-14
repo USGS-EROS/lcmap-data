@@ -1,25 +1,13 @@
 sudo: required
 dist: trusty
 language: clojure
-before_install:
-  - sudo apt-add-repository ppa:ubuntugis/ppa -y
-  - sudo apt-get update -qq
-  - sudo apt-get install libgdal-dev libgdal-java -y
-before_script: test/support/setup.sh
+before_script:
+  - test/support/setup.sh
 script:
+  - make db-setup
   - make check
 jdk:
   - oraclejdk8
-  #- oraclejdk7
-  #- openjdk6
-  #- openjdk7
-  #- openjdk8
-#addons:
-#  apt:
-#    sources:
-#      -
-services:
-  - cassandra
 branches:
   only:
     - master

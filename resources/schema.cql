@@ -1,4 +1,4 @@
-CREATE KEYSPACE IF NOT EXISTS lcmap_test WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1};
+CREATE KEYSPACE IF NOT EXISTS lcmap WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1};
 
 -- Tiles for CONUS
 CREATE TABLE IF NOT EXISTS lcmap.conus (
