@@ -1,6 +1,11 @@
 sudo: required
 dist: trusty
 language: clojure
+git:
+    submodules: false
+before_install:
+    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
 before_script:
   - test/support/setup.sh
 script:
