@@ -7,8 +7,8 @@ before_install:
     - sudo apt-add-repository ppa:ubuntugis/ppa -y
     - sudo apt-get update -qq
     - sudo apt-get install libgdal-dev libgdal-java -y
-    - curl --location --silent -L https://debian.datastax.com/debian/repo_key | sudo apt-key add -
-    - sudo apt-get install -y -qq dsc21
+    # - curl --location --silent -L https://debian.datastax.com/debian/repo_key | sudo apt-key add -
+    # - sudo apt-get install -y -qq dsc21
     - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
     - git submodule update --init --recursive
 script:

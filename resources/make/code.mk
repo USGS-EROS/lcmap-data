@@ -28,7 +28,7 @@ loc:
 	@find src -name "*.clj" -exec cat {} \;|wc -l
 
 check:
-	@lein test :all
+	@lein test
 
 run:
 	-@lein trampoline run
