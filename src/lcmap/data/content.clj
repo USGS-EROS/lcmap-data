@@ -19,17 +19,19 @@
 (defn create
   "Icky-Icky-Icky-Ptang-Zoop-Boing"
   [driver-name tile-spec tiles]
-  (println "party time!")
   (let [le-driver   (gdal/get-driver-by-name driver-name)
         le-path     (str "neato." (driver/file-ext le-driver))
         le-dataset  (driver/create le-driver le-path 128 128 (count tiles) gdalconst/GDT_Int16)
         le-tile     (first tiles)
-        le-array    (short-array (* 128 128))]
+        le-array    (short-array (* 128 128))
+        [xs ys]     (:data_shape tile-spec)
+        projection  (:projection tile-spec)
+        affine      [(:x le-tile) (:pixel_x tile-spec) 0.0 (:y le-tile) 0.0 (:pixel_y tile-spec)]]
     ;; set metadata using tile-spec and tile properties...
-    (dataset/set-projection-str le-dataset (:projection tile-spec))
-    (dataset/set-geo-transform le-dataset [(:x le-tile) 30.0 0.0 (:y le-tile) 0.0 -30.0])
-    (doseq [tile tiles]
-      (let [le-band (dataset/get-band le-dataset 1)]
+    (dataset/set-projection-str le-dataset projection)
+    (dataset/set-geo-transform le-dataset affine)
+    (doseq [[ix tile] (zipmap (iterate inc 1) tiles)]
+      (let [le-band (dataset/get-band le-dataset ix)]
         (-> tile :data (.asShortBuffer) (.get le-array))
         (band/write-raster le-band 0 0 128 128 le-array)
         (band/flush-cache le-band)
