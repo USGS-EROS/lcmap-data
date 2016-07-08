@@ -25,12 +25,16 @@
   [db band]
   (merge band (first (tile-spec/find db (select-keys band [= :ubid (:ubid band)])))))
 
-(defn- int16-fill
+(defn int16-fill
   "Produce a buffer used to detect INT16 type buffers containing all fill data."
   [data-size data-fill]
-  (let [buffer (java.nio.ShortBuffer/allocate data-size)
-        backer (.array buffer)]
-    (java.util.Arrays/fill backer (short data-fill))))
+  (let [bytes (java.nio.ByteBuffer/allocate (* Short/BYTES data-size))
+        shorts (short-array data-size (short data-fill))]
+    (-> bytes
+        (.order java.nio.ByteOrder/LITTLE_ENDIAN)
+        (.asShortBuffer)
+        (.put shorts))
+    bytes))
 
 (defn- uint8-fill
   "PLACEHOLDER. Produce a buffer used to detect UINT8 type buffers all fill data."
@@ -63,9 +67,7 @@
   [tile]
   (let [data (:data tile)
         fill (:fill tile)]
-    (and (some? fill)
-         (some? data)
-         (= 0 (.compareTo data fill)))))
+    (and (some? fill) (some? data) (= 0 (.compareTo data fill)))))
 
 (defn locate-fn
   "Build projection coordinate point calculator for GDAL dataset."
@@ -93,7 +95,7 @@
   ((:locate-fn tile) tile))
 
 (defn conforms?
-  "PLACHOLER. True if the referenced raster matches the band's tile-spec.
+  "PLACHOLDER. True if the referenced raster matches the band's tile-spec.
    This ensures the raster is the same projection and that the boundaries
    precisely align to the tile-specs grid values."
   [band]
