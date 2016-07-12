@@ -66,9 +66,3 @@
   ;; Getting scene metadata
   (let [query {:source "LT50470282002001LGS01"}]
     (scene/find (:database sys) query)))
-
-(def ts (tile/find (:database sys) {:x -2062080 :y 2952960 :acquired ["2002-05-14" "2002-05-21"] :ubid "LANDSAT_5/TM/sr_band1"}))
-(def shorty (short-array (* 128 128)))
-(-> ts first :data (.asShortBuffer) (.get shorty))
-(-> ts first :acquired)
-(map #(aget shorty %) [1000 2000 3000])
