@@ -14,7 +14,7 @@
   * [1. Prepare the Schema](#1-prepare-the-schema-)
   * [2. Create Tile Specs](#2-create-tile-specs-)
   * [3. Create Tiles](#3-create-tiles-)
-* [License](#usage-)
+* [License](#license-)
 
 
 ## Concepts [&#x219F;](#contents)
