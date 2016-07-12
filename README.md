@@ -2,7 +2,6 @@
 
 *Data ingest and access for LCMAP*
 
-----
 
 [![Build Status][travis-badge]][travis][![Dependencies Status][deps-badge]][deps][![Clojars Project][clojars-badge]][clojars]
 
