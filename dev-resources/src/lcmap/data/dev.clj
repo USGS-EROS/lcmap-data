@@ -1,6 +1,7 @@
 (ns lcmap.data.dev
   ""
   (:require [lcmap.data.config :as config]
+            [lcmap.data.content :as content]
             [lcmap.data.system :as system]
             [lcmap.data.ingest :as ingest]
             [lcmap.data.tile :as tile]
@@ -56,16 +57,11 @@
   ;; Starting the system
   (run)
 
-  ;; Getting some specs
-  (let [query {:ubid "LANDSAT_5/TM/sr_band1"}]
-    (spec/find (:database sys) {:ubid "LANDSAT_5/TM/sr_band1"}))
-
-  ;; Getting some tiles
-  (let [query {:x -2062080
-               :y 2952960
-               :acquired ["2002-01-01" "2003-01-01"]
-               :ubid "LANDSAT_5/TM/sr_band1"}]
-    (tile/find (:database sys) query))
+  ;; Making some files from tiles
+  (let [spec  (first (spec/find (:database sys) {:ubid "LANDSAT_5/TM/sr_band1"}))
+        query {:x -2062080 :y 2952960 :acquired ["2002-05-14" "2002-05-21"] :ubid "LANDSAT_5/TM/sr_band1"}
+        tiles (tile/find (:database sys) query)]
+    (content/create "netCDF" spec tiles))
 
   ;; Getting scene metadata
   (let [query {:source "LT50470282002001LGS01"}]

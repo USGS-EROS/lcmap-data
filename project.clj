@@ -24,7 +24,7 @@
                  [me.raynes/fs "1.4.6"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.5.3"]
-                 [clj-gdal "0.3.5-SNAPSHOT"]
+                 [clj-gdal "0.4.0-SNAPSHOT"]
                  [clj-time/clj-time "0.11.0"]
                  ;; XXX note that we may still need to explicitly include the
                  ;; Apache Java HTTP client, since the version used by the LCMAP
@@ -43,7 +43,8 @@
             ^:pass-through-help
             ["run" "-m" "lcmap.data.cli"]}
   :repl-options {:init-ns lcmap.data.dev}
-  :main lcmap.data.app
+  :main lcmap.data.cli
+  :aot [lcmap.data.cli]
   :test-selectors {:default (complement :integration)
                    :unit    (complement :integration)
                    :db      :integration
