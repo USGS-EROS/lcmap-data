@@ -54,10 +54,13 @@
         paths (-> opts :arguments rest)
         db    (:database system)]
     (doseq [path paths]
-      (util/with-temp [dir path]
-        (log/infof "%s: %s to %s" "archive-start" path dir)
-        (ingest/process-scene db dir)
-        (log/infof "%s: %s to %s" "archive-done" path dir)))))
+      (log/infof "archive-start: %s" path)
+      (try
+        (util/with-temp [dir path]
+          (ingest/process-scene db dir))
+        (catch RuntimeException e
+          (log/errorf "archive-fail: %s %s" path (.getMessage e))))
+      (log/infof "archive-done: %s" "archive-done" path))))
 
 ;;; command: lein lcmap make-specs
 
