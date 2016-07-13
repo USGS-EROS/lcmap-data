@@ -55,7 +55,9 @@
         db    (:database system)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (ingest/process-scene db dir)))))
+        (log/infof "%s: %s to %s" "archive-start" path dir)
+        (ingest/process-scene db dir)
+        (log/infof "%s: %s to %s" "archive-done" path dir)))))
 
 ;;; command: lein lcmap make-specs
 
@@ -87,7 +89,9 @@
         db    (:database system)]
     (doseq [path paths]
       (util/with-temp [dir path]
-        (adopt/process-scene db dir args)))))
+        (log/infof "archive-start: %s" path)
+        (adopt/process-scene db dir args)
+        (log/infof "archive-done: %s" path)))))
 
 ;;; command: lein lcmap --info
 

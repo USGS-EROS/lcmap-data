@@ -174,10 +174,10 @@
                         (remove fill?))
           [xs ys] (:data_shape band)
           tiles   (dataset->tiles tile-xf dataset xs ys)]
-      (log/info "processing band started ..." (:ubid band))
+      (log/infof "%s: %s %s" "band-start" (:path band) (:ubid band))
       (scene/save-band db band)
       (dorun (pmap #(process-tile db %) tiles))
-      (log/info "processing band done ..." (:ubid band)))))
+      (log/infof "%s: %s %s" "band-done" (:path band) (:ubid band)))))
 
 (defn process-scene
   "Saves all bands in dir referenced by path."
@@ -186,9 +186,9 @@
                       (map +fill)
                       (map +locate)
                       (filter conforms?))]
-    (log/info "start processing scene" scene-dir)
+    (log/infof "%s: %s" "scene-start" (.getAbsolutePath scene-dir))
     (dorun (pmap #(process-band db %) (scene->bands scene-dir band-xf)))
-    (log/info "done processing" scene-dir)))
+    (log/infof "%s: %s" "scene-done" (.getAbsolutePath scene-dir))))
 
 ;;; Exception handling
 
