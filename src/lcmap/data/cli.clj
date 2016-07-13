@@ -9,7 +9,6 @@
             [clojurewerkz.cassaforte.cql :as cql]
             [com.stuartsierra.component :as component]
             [dire.core :refer [with-handler!]]
-            [twig.core :as twig]
             [lcmap.config.helpers :as config-helpers]
             [lcmap.data.system :as sys]
             [lcmap.data.ingest :as ingest]

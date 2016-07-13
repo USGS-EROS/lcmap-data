@@ -1,7 +1,7 @@
 (ns lcmap.data.app
   (:require [clojure.tools.logging :as log]
             [com.stuartsierra.component :as component]
-            [twig.core :as logger]
+            [clojusc.twig :as logger]
             [lcmap.data.system :as components]
             [lcmap.data.util :as util])
   (:gen-class))
