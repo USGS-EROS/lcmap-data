@@ -28,7 +28,7 @@
 (defn int16-fill
   "Produce a buffer used to detect INT16 type buffers containing all fill data."
   [data-size data-fill]
-  (let [bytes (java.nio.ByteBuffer/allocate (* Short/BYTES data-size))
+  (let [bytes (java.nio.ByteBuffer/allocate (* (/ Short/SIZE 8) data-size))
         shorts (short-array data-size (short data-fill))]
     (-> bytes
         (.order java.nio.ByteOrder/LITTLE_ENDIAN)
