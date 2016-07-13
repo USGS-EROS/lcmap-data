@@ -88,10 +88,10 @@
         args  (:options opts)
         db    (:database system)]
     (doseq [path paths]
+      (log/infof "archive-start: %s" path)
       (util/with-temp [dir path]
-        (log/infof "archive-start: %s" path)
-        (adopt/process-scene db dir args)
-        (log/infof "archive-done: %s" path)))))
+        (adopt/process-scene db dir args))
+      (log/infof "archive-done: %s" path))))
 
 ;;; command: lein lcmap --info
 
