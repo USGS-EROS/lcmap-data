@@ -45,6 +45,17 @@
   :repl-options {:init-ns lcmap.data.dev}
   :main lcmap.data.cli
   :aot [lcmap.data.cli]
+  :codox {
+    :project {
+      :name "lcmap.data"
+      :description "LCMAP Data Library and CLI"}
+    :namespaces [#"^lcmap.data\."]
+    :output-path "docs/master/current"
+    :doc-paths ["docs/source"]
+    :metadata {
+      :doc/format :markdown
+      :doc "Documentation forthcoming"}}
+
   :test-selectors {:default (complement :integration)
                    :unit    (complement :integration)
                    :db      :integration
