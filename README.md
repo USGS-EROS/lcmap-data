@@ -11,6 +11,7 @@
 #### Contents
 
 * [Concepts](#concepts-)
+* [Documentation](#documentation-)
 * [Dependencies](#dependencies-)
 * [Configuration](#configuration-)
 * [Usage](#usage-)
@@ -42,6 +43,14 @@ This project will create tiles from an archive obtained from the
 [USGS ESPA system](http://espa.cr.usgs.gov/). It does not currently support
 tiling of arbitrary geospatial data (GeoTIFF, HDF, etc...) although it may in the
 future.
+
+
+## Documentation [&#x219F;](#contents)
+
+The LCMAP data API reference is slowly being updated with docstrings.
+The project's auto-generated documentation is available here:
+
+* [http://usgs-eros.github.io/lcmap-event](http://usgs-eros.github.io/lcmap-event)
 
 
 ## Configuration [&#x219F;](#contents)
