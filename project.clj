@@ -45,6 +45,8 @@
   :repl-options {:init-ns lcmap.data.dev}
   :main lcmap.data.cli
   :aot [lcmap.data.cli]
+  :plugins [[lein-kibit "0.1.2"]
+            [lein-codox "0.9.5"]]
   :codox {
     :project {
       :name "lcmap.data"
@@ -63,8 +65,6 @@
   :profiles {:dev
              {:dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
                              [slamhound "1.5.5"]]
-              :plugins [[lein-kibit "0.1.2"]
-                        [lein-codox "0.9.5"]]
               :aliases {"slamhound" ["run" "-m" "slam.hound"]}
               :source-paths ["dev-resources/src"]}
              :test {}})
