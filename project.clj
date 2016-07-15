@@ -35,7 +35,7 @@
                  ;; XXX temp dependencies:
                  [org.apache.httpcomponents/httpclient "4.5.2"]
                  ;; LCMAP Components
-                 [gov.usgs.eros/lcmap-config "0.5.0-SNAPSHOT"]
+                 [gov.usgs.eros/lcmap-config "0.5.0"]
                  [gov.usgs.eros/lcmap-logger "0.5.0-SNAPSHOT"]]
   :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
