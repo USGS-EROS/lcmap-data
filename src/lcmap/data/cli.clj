@@ -58,6 +58,8 @@
         (util/with-temp [dir path]
           (ingest/process-scene db dir))
         (catch RuntimeException e
+          (log/errorf "archive-fail: %s %s" path (.getMessage e)))
+        (catch java.io.IOException e
           (log/errorf "archive-fail: %s %s" path (.getMessage e))))
       (log/infof "archive-done: %s" "archive-done" path))))
 
@@ -166,7 +168,7 @@
 ;;; exception handlers
 
 (with-handler! #'-main
-  java.lang.RuntimeException
+  java.lang.Exception
   (fn [e & args]
     (log/error e)
     (exit 1)))
