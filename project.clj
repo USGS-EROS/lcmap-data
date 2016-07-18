@@ -1,4 +1,4 @@
-(defproject  gov.usgs.eros/lcmap-data "0.5.0-SNAPSHOT"
+(defproject  gov.usgs.eros/lcmap-data "0.5.0"
   :description "LCMAP data layer management tools"
   :url "http://github.com/USGS-EROS/lcmap-data"
   :license {:name "NASA Open Source Agreement, Version 1.3"
@@ -24,7 +24,7 @@
                  [me.raynes/fs "1.4.6"]
                  [com.stuartsierra/component "0.3.1"]
                  [leiningen-core "2.6.1"]
-                 [clj-gdal "0.4.0-SNAPSHOT"]
+                 [clj-gdal "0.4.0-ALPHA"]
                  [clj-time/clj-time "0.12.0"]
                  ;; XXX note that we may still need to explicitly include the
                  ;; Apache Java HTTP client, since the version used by the LCMAP
@@ -36,7 +36,7 @@
                  [org.apache.httpcomponents/httpclient "4.5.2"]
                  ;; LCMAP Components
                  [gov.usgs.eros/lcmap-config "0.5.0"]
-                 [gov.usgs.eros/lcmap-logger "0.5.0-SNAPSHOT"]]
+                 [gov.usgs.eros/lcmap-logger "0.5.0"]]
   :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
             `lein lcmap --help`"}
