@@ -73,9 +73,9 @@
   (shape [band]
     (gdal.band/get-size band))
   (steps [band step-x step-y]
-    (let [[rows cols] (shape band)]
-      (for [x (range 0 cols step-x)
-            y (range 0 rows step-y)]
+    (let [[x-size y-size] (shape band)]
+      (for [x (range 0 x-size step-x)
+            y (range 0 y-size step-y)]
         [x y step-x step-y])))
   (tiles [band step-x step-y]
     (for [[x y xs ys] (steps band step-x step-y)]
