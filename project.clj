@@ -1,4 +1,4 @@
-(defproject  gov.usgs.eros/lcmap-data "0.5.0"
+(defproject  gov.usgs.eros/lcmap-data "0.5.1-SNAPSHOT"
   :description "LCMAP data layer management tools"
   :url "http://github.com/USGS-EROS/lcmap-data"
   :license {:name "NASA Open Source Agreement, Version 1.3"

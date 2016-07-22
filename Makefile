@@ -1,6 +1,6 @@
-VERSION=0.5.0
 PROJECT=lcmap-data
-STANDALONE=target/$(PROJECT)-$(VERSION)-SNAPSHOT-standalone.jar
+VERSION=0.5.1-SNAPSHOT
+STANDALONE=target/$(PROJECT)-$(VERSION)-standalone.jar
 ROOT_DIR = $(shell pwd)
 
 include resources/make/code.mk
