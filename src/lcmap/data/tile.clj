@@ -55,7 +55,7 @@
    (let [session (get-in db [:session])]
      (log/debug "save tile" tile)
      (cql/use-keyspace session keyspace)
-     (cql/insert session table tile)
+     (cql/insert-async session table tile)
      tile)))
 
 ;;; Dataset functions
