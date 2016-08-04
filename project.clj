@@ -14,7 +14,7 @@
                  ;; error handling
                  [dire "0.5.4"]
                  ;; data validation and coercion
-                 [prismatic/schema "1.1.2"]
+                 [prismatic/schema "1.1.3"]
                  [camel-snake-kebab "0.4.0"]
                  ;; cassandra / db deps
                  [clojurewerkz/cassaforte "2.0.2"]
