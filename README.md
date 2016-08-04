@@ -1,9 +1,8 @@
 # lcmap.data
 
-*Data ingest and access for LCMAP*
-
-
 [![Build Status][travis-badge]][travis][![Dependencies Status][deps-badge]][deps][![Clojars Project][clojars-badge]][clojars]
+
+*Data ingest and access for LCMAP*
 
 [![LCMAP open source project logo][lcmap-logo]][lcmap-logo-large]
 
