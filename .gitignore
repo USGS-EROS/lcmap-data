@@ -4,13 +4,11 @@ docs/master/current/
 /checkouts
 /logs
 /tmp
-pom.xml
-pom.xml.asc
+pom.xml*
 *.jar
 *.class
 /.lein-*
-/.nrepl-port
-.hgignore
-.hg/
+/.nrepl-*
+.hg*
 .env
 test/support/lcmap.test.ini
