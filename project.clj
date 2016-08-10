@@ -1,4 +1,4 @@
-(defproject  gov.usgs.eros/lcmap-data "0.5.1-SNAPSHOT"
+(defproject  gov.usgs.eros/lcmap-data "1.0.0-SNAPSHOT"
   :description "LCMAP data layer management tools"
   :url "http://github.com/USGS-EROS/lcmap-data"
   :license {:name "NASA Open Source Agreement, Version 1.3"
@@ -35,8 +35,8 @@
                  ;; XXX temp dependencies:
                  [org.apache.httpcomponents/httpclient "4.5.2"]
                  ;; LCMAP Components
-                 [gov.usgs.eros/lcmap-config "0.5.0"]
-                 [gov.usgs.eros/lcmap-logger "0.5.0"]]
+                 [gov.usgs.eros/lcmap-config "1.0.0-SNAPSHOT"]
+                 [gov.usgs.eros/lcmap-logger "1.0.0-SNAPSHOT"]]
   :aliases {"lcmap"
             ^{:doc "Command line interface for lcmap.data. For more info, run:
             `lein lcmap --help`"}
@@ -57,14 +57,16 @@
     :metadata {
       :doc/format :markdown
       :doc "Documentation forthcoming"}}
-
-  :test-selectors {:default (complement :integration)
-                   :unit    (complement :integration)
-                   :db      :integration
-                   :all     (constantly true)}
-  :profiles {:dev
-             {:dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
-                             [slamhound "1.5.5"]]
-              :aliases {"slamhound" ["run" "-m" "slam.hound"]}
-              :source-paths ["dev-resources/src"]}
-             :test {}})
+  :test-selectors {
+    :default (complement :integration)
+    :unit    (complement :integration)
+    :db      :integration
+    :all     (constantly true)}
+  :profiles {
+    :uberjar {:aot :all}
+    :dev {
+      :dependencies [[org.clojure/tools.namespace "0.3.0-alpha3"]
+                     [slamhound "1.5.5"]]
+      :aliases {"slamhound" ["run" "-m" "slam.hound"]}
+      :source-paths ["dev-resources/src"]}
+    :test {}})
