@@ -1,6 +1,7 @@
 (ns lcmap.data.config
   "Provides schemas for validating configuration data and values."
   (:require [lcmap.config.helpers :as helpers]
+            [lcmap.logger.config :as logger-cfg]
             [schema.core :as schema]))
 
 ;;; configuration schemas
@@ -15,13 +16,9 @@
                 :scene-keyspace schema/Str
                 schema/Keyword  schema/Str}})
 
-(def logger-schema
-  {:lcmap.logger {:level schema/Str
-                   :namespaces [schema/Str]}})
-
 (def cfg-schema
   (merge data-schema
-         logger-schema
+         logger-cfg/logger-schema
          {schema/Keyword schema/Any}))
 
 ;;; cli opt-specs placeholder
