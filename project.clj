@@ -8,7 +8,7 @@
       :plugins
       :pom-addition
       :repositories
-      :target
+      :target-path
       :test-selectors
       ;; XXX The following can be un-commented once this issue is resolved:
       ;;     * https://github.com/achin/lein-parent/issues/3
