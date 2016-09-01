@@ -14,5 +14,5 @@ sudo apt-add-repository ppa:ubuntugis/ppa -y
 sudo apt-get update -qq
 sudo apt-get install libgdal-dev libgdal-java -y
 sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-git submodule update --init --recursive
+#git submodule update --init --recursive
 
