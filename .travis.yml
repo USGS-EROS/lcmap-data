@@ -1,28 +1,34 @@
 sudo: required
 dist: trusty
-language: clojure
 git:
-    submodules: false
-before_install:
-    - sudo apt-add-repository ppa:ubuntugis/ppa -y
-    - sudo apt-get update -qq
-    - sudo apt-get install libgdal-dev libgdal-java -y
-    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-    - git submodule update --init --recursive
-before_script:
-    - test/support/setup.sh
-script:
-  - make check
-jdk:
-  - oraclejdk8
+  submodules: false
+# We can't use Clojure due to a premature call to lein prior to the
+# before_install step by Travis CI. Calling lein before we've installed to the
+# local Maven repo causes an error with lein-parent and Sonatype.
+#language: clojure
+language: java
+install: test/support/travis_install.sh
+after_install: test/support/setup_deps.sh
+before_script: lein version && lein deps && lein compile
+script: make check
 branches:
   only:
     - master
     - /^topic/
+jdk:
+  - oraclejdk8
+  #- oraclejdk7
+  #- openjdk6
+  #- openjdk7
+  #- openjdk8
+#addons:
+#  apt:
+#    sources:
+#      -
 notifications:
   email:
-      # the following won't work until the Travis
-      # but here is sorted:
+      # the following won't work until this Travis CI
+      # bug is sorted:
       # https://github.com/travis-ci/travis-ci/issues/2513
       - lcmap-dev-notifications@googlegroups.com
       - duncan.mcgreggor.ctr@usgs.gov

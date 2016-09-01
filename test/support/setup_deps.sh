@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-# Configuration
-mkdir -p ~/.usgs/
+mkdir checkouts
+cd checkouts && \
+    git clone https://github.com/USGS-EROS/lcmap-config.git && \
+    git clone https://github.com/USGS-EROS/lcmap-logger.git && \
+    cd ../
+
+mkdir ~/.usgs/
 cp test/support/lcmap.test.ini.example ~/.usgs/lcmap.test.ini
 
 # Cassandra (not available by default on Travis' Trusty build)
