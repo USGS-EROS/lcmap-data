@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+git submodule update --init --recursive
+
 mkdir checkouts
 cd checkouts && \
     git clone https://github.com/USGS-EROS/lcmap-config.git && \
