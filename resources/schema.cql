@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS lcmap.conus (
     data blob,
     source text,
     PRIMARY KEY ((x, y, ubid), acquired)
-);
+)
+WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
+AND  COMPACTION = { 'class' :  'LeveledCompactionStrategy' };
 
 -- Tile specifications/metadata
 CREATE TABLE IF NOT EXISTS lcmap.tile_specs (
