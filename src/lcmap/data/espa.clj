@@ -103,7 +103,7 @@
                      :data_type  (attr band :data_type)
                      :data_fill  (some-> (attr band :fill_value) Short/parseShort)
                      :data_scale (some-> (attr band :scale_factor) Double/parseDouble)
-                     :data_range (map #(if (some? %) (Integer/parseInt %))
+                     :data_range (map #(if (some? %) (int (Double/parseDouble %)))
                                       (data-range->list band))
                      :data_units (attr band :data_units)
                      :data_mask  (mask-values->map band)}]]
