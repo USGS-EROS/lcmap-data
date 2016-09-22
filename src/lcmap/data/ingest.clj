@@ -28,36 +28,37 @@
 (defn int16-fill
   "Produce a buffer used to detect INT16 type buffers containing all fill data."
   [data-size data-fill]
-  (let [bytes (java.nio.ByteBuffer/allocate (* (/ Short/SIZE 8) data-size))
-        shorts (short-array data-size (short data-fill))]
-    (-> bytes
-        (.order java.nio.ByteOrder/LITTLE_ENDIAN)
-        (.asShortBuffer)
-        (.put shorts))
-    bytes))
+  (if data-fill
+    (let [buffer (java.nio.ByteBuffer/allocate (* (/ Short/SIZE 8) data-size))
+          shorts (short-array data-size (unchecked-short data-fill))]
+      (-> buffer
+          (.order java.nio.ByteOrder/LITTLE_ENDIAN)
+          (.asShortBuffer)
+          (.put shorts))
+      buffer)))
 
 (defn- uint8-fill
-  "PLACEHOLDER. Produce a buffer used to detect UINT8 type buffers all fill data."
+  "Produce a buffer used to detect UINT8 type buffers all fill data."
   [data-size data-fill]
-  ;; XXX This hasn't been implemented yet because it's not strictly
-  ;;     necessary at this point. If a band doesn't have a fill buffer
-  ;;     to compare against, it assumes the tile has useful data. The
-  ;;     downside is we are creating tiles comprised entirely of fill
-  ;;     data.
-  nil)
+  (if data-fill
+    (let [buffer (java.nio.ByteBuffer/allocate (* (/ Byte/SIZE 8) data-size))
+          bytes (byte-array data-size (unchecked-byte data-fill))]
+      (-> buffer
+          (.order java.nio.ByteOrder/LITTLE_ENDIAN)
+          (.put bytes))
+      buffer)))
 
 (def fill-buffer
   "Create a buffer memoized on data-size and data-fill."
   (clojure.core.memoize/lu
    (fn [data-size data-fill data-type]
-     (log/debug "Create fill buffer for" data-size data-fill data-type)
      (cond (= data-type "INT16") (int16-fill data-size data-fill)
            (= data-type "UINT8") (uint8-fill data-size data-fill)))))
 
 (defn +fill
   "Make a fill buffer used to detect no-data tiles"
   [band]
-  (log/debug "add fill buffer to band ...")
+  (log/debugf "add fill buffer to band %s %s %s..." (band :ubid) (band :data_fill) (band :data_type))
   (assoc band :fill (fill-buffer (apply * (band :data_shape))
                                  (band :data_fill)
                                  (band :data_type))))
