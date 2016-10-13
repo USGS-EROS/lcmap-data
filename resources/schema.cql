@@ -85,3 +85,4 @@ CREATE TABLE IF NOT EXISTS lcmap.ccdcmodel (
 
 ) WITH COMPRESSION = { 'sstable_compression' : 'LZ4Compressor' }
   AND COMMENT = 'CCDC model results table.';
+
